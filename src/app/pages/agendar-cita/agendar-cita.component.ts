@@ -53,7 +53,8 @@ export class AgendarCitaComponent implements OnInit {
   segments: any;
 
   // 📝 Formulario Reactivo Express para Captura y Pre-Registro Silencioso
-  public expressPatientForm!: FormGroup;
+  public pasoActual: number = 1; // Controla la pantalla del formulario visible
+public expressPatientForm!: FormGroup;
 
   constructor(
     public appointmentService: AppointmentService,
@@ -63,20 +64,36 @@ export class AgendarCitaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    window.scrollTo(0, 0);
-    
-    // Inicialización del formulario express para capturar al nuevo paciente
-    this.expressPatientForm = new FormGroup({
-      nombre: new FormControl('', [Validators.required, Validators.minLength(3)]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      phone: new FormControl('', [Validators.required, Validators.pattern('^[0-9+ ]{7,15}\$')]),
-    });
+    window.scrollTo(0, 0); // [1]
 
-    this.appointmentService.listConfig().subscribe((resp: any) => {
-      this.hours = resp.hours;
-      this.specialities = resp.specialities;
-    });
+  // Inicialización con los nuevos campos solicitados (Nombre, Apellido, Cédula, WhatsApp)
+  this.expressPatientForm = new FormGroup({
+    nombre: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    apellido: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    n_doc: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{5,10}$')]),
+    phone: new FormControl('', [Validators.required])
+  });
+
+  this.appointmentService.listConfig().subscribe((resp: any) => { // [1]
+    this.hours = resp.hours; // [1]
+    this.specialities = resp.specialities; // [1]
+  }); // [1]
   }
+
+  irAlPaso(paso: number) {
+  this.text_validation = '';
+
+  if (paso === 2) {
+    // Validación estricta del Paso 1 antes de dejarlo avanzar
+    if (!this.date_appointment || !this.specilityie_id || !this.selected_segment_hour) {
+      this.text_validation = "Debes seleccionar la fecha y una hora válida para continuar.";
+      this.toastr.warning(this.text_validation);
+      return;
+    }
+  }
+
+  this.pasoActual = paso;
+}
 
   getPrice() {
     this.appointmentService.showSpeciality(this.specilityie_id).subscribe((resp: any) => {
@@ -90,82 +107,84 @@ export class AgendarCitaComponent implements OnInit {
 
   // ⚡ GUARDADO EXPRESS: Registra en la central Klyntic y detona WhatsApp
   saveExpress() {
-    this.text_validation = '';
+  this.text_validation = '';
 
-    // Validamos campos de fecha, especialidad e información de horas del backend
-    if (!this.date_appointment || !this.specilityie_id || !this.selected_segment_hour) {
-      this.text_validation = "Falta seleccionar la fecha o el bloque de hora para tu cita.";
-      this.toastr.warning(this.text_validation);
-      return;
-    }
-
-    // Validamos que los datos del formulario rápido del paciente estén completos
-    if (this.expressPatientForm.invalid) {
-      this.text_validation = "Por favor, ingresa tu nombre, correo electrónico y teléfono correctamente.";
-      this.toastr.warning(this.text_validation);
-      return;
-    }
-
-    this.cargando = true;
-
-    // Estructuramos la data unificada para Klyntic Express (Pre-registro + Cita)
-    const dataExpress = {
-      doctor_id: this.DOCTOR_SELECTED?.doctor?.id || 3, // ID asignado o recuperado de la URL
-      speciality_id: this.specilityie_id,
-      date_appointment: this.date_appointment,
-      doctor_schedule_join_hour_id: this.selected_segment_hour.id,
-      amount: this.DOCTOR_SELECTED?.doctor?.precio_cita || 0,
-      status_pay: 1, // 1 = Pendiente de pago (Pagan después en consulta física)
-      status: 1,     // 1 = Solicitada/Pendiente por verificar por el médico
-      
-      // Datos del cliente para creación automática de cuenta en background (Laravel)
-      name: this.expressPatientForm.get('nombre')?.value,
-      email: this.expressPatientForm.get('email')?.value,
-      phone: this.expressPatientForm.get('phone')?.value,
-    };
-
-    // Consumimos el servicio del backend
-    this.appointmentService.storeAppointmentExpress(dataExpress).subscribe({
-      next: (resp: any) => {
-        this.toastr.success('¡Solicitud enviada a la central con éxito!');
-        this.cargando = false;
-        
-        this.cerrarOffcanvas();
-
-        // 📲 Detonamos la redirección automática a WhatsApp con el formato Premium
-        this.enviarNotificacionWhatsApp(dataExpress);
-      },
-      error: (err) => {
-        this.cargando = false;
-        this.toastr.error('Ocurrió un error al procesar la reserva. Intenta de nuevo.');
-      }
-    });
+  if (this.expressPatientForm.invalid) {
+    this.text_validation = "Por favor, completa correctamente todos tus datos personales.";
+    this.toastr.warning(this.text_validation);
+    return;
   }
 
-  private enviarNotificacionWhatsApp(data: any) {
-    const mensaje = encodeURIComponent(
-      `✨ *NUEVA SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
-      `👋 Hola, un saludo. Acabo de solicitar una cita médica a través de la web:\n\n` +
-      `👤 *Paciente:* ${data.name}\n` +
-      `📞 *Teléfono:* ${data.phone}\n` +
-      `✉️ *Correo:* ${data.email}\n\n` +
-      `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
-      `⏰ *Bloque de Hora:* Seleccionado en sistema\n\n` +
-      `🚀 _Quedo a la espera de su confirmación para agendarla formalmente en mi app de Klyntic Paciente._`
-    );
+  this.cargando = true;
 
-    // Número de contacto del consultorio del doctor o clínica asociada
-    const numeroDestino = this.DOCTOR_SELECTED?.doctor?.mobile || "584120000000"; 
+  const dataExpress = {
+    doctor_id: this.DOCTOR_SELECTED?.doctor?.id || 3,
+    speciality_id: this.specilityie_id,
+    date_appointment: this.date_appointment,
+    doctor_schedule_join_hour_id: this.selected_segment_hour.id,
+    amount: this.DOCTOR_SELECTED?.doctor?.precio_cita || 0,
+    status_pay: 1, 
+    status: 1,     
 
-    window.open(`https://wa.me{numeroDestino}?text=${mensaje}`, '_blank');
+    // Datos personales separados
+    name: this.expressPatientForm.get('nombre')?.value,
+    surname: this.expressPatientForm.get('apellido')?.value,
+    n_doc: this.expressPatientForm.get('n_doc')?.value,
+    phone: this.expressPatientForm.get('phone')?.value,
+    email: `${this.expressPatientForm.get('n_doc')?.value}@klyntic.express` // Email temporal usando la cédula para pasar la regla del backend
+  };
+    // console.log(dataExpress)
+  this.appointmentService.storeAppointmentExpress(dataExpress).subscribe({
+    next: (resp: any) => {
+      this.toastr.success('¡Solicitud enviada a la central con éxito!');
+      this.cargando = false;
+      this.cerrarOffcanvas();
+      this.enviarNotificacionWhatsApp(dataExpress);
+    },
+    error: (err) => {
+      this.cargando = false;
+      this.toastr.error('Ocurrió un error al procesar la reserva.');
+    }
+  });
+}
+
+private enviarNotificacionWhatsApp(data: any) {
+  const mensaje = encodeURIComponent(
+    `✨ *SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
+    `👋 Hola, un saludo. Acabo de solicitar una cita médica desde el perfil web:\n\n` +
+    `👤 *Paciente:* ${data.name} ${data.surname}\n` +
+    `🪪 *Cédula:* ${data.n_doc}\n` +
+    `📞 *WhatsApp:* ${data.phone}\n\n` +
+    `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
+    `⏰ *Estatus:* Pendiente por confirmación de disponibilidad\n\n` +
+    `🚀 _Quedo atento a su respuesta para agendar formalmente._`
+  );
+
+  const numeroDestino = this.DOCTOR_SELECTED?.doctor?.mobile || "584120000000"; 
+  window.open(`https://wa.me{numeroDestino}?text=${mensaje}`, '_blank');
+}
+
+
+ cancel() {
+  // 🚀 ASIGNAMOS NULL PARA FORZAR EL RESET VISUAL DEL INPUT FECHA
+  this.date_appointment = null; 
+  this.hour = null;
+  
+  if (this.selected_segment_hour) {
+    this.selected_segment_hour = null;
   }
-
-  cancel() {
-    this.date_appointment = '';
-    this.hour = '';
-    if (this.selected_segment_hour) this.selected_segment_hour.id = null;
+  
+  // Limpiamos los textos de errores previos si los había
+  this.text_validation = '';
+  
+  // Reseteamos el formulario reactivo del Paso 2
+  if (this.expressPatientForm) {
     this.expressPatientForm.reset();
   }
+  // Regresamos el asistente al primer paso obligatoriamente
+  this.pasoActual = 1; 
+}
+
 
   abrirOffcanvas(idDeLaEspecialidad: string) {
     this.specilityie_id = idDeLaEspecialidad;

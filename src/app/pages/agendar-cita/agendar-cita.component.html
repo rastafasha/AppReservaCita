@@ -5,10 +5,12 @@
 
   <div class="offcanvas-header px-4 pt-3 pb-2 border-0">
     <div class="d-flex flex-column">
-      <span class="text-primary fw-bold text-uppercase x-small tracking-wider">Klyntic Express</span>
+      <span class="text-primary fw-bold text-uppercase x-small tracking-wider">
+        Paso {{ pasoActual }} de 2
+      </span>
       <h5 class="offcanvas-title fw-bold h4" id="offcanvasCitaLabel">Solicitar Cita Médica</h5>
     </div>
-    <button type="button" class="btn-close-apple" data-bs-dismiss="offcanvas" aria-label="Close">
+    <button type="button" class="btn-close-apple" (click)="cerrarOffcanvas()" data-bs-dismiss="offcanvas" aria-label="Close">
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
@@ -26,74 +28,108 @@
       </div>
     </div>
 
-    <!-- 🚀 FORMULARIO VINCULADO AL GRUPO REACTIVO -->
+    <!-- FORMULARIO REACTIVO EXPRESS -->
     <form [formGroup]="expressPatientForm" class="apple-form-group d-flex flex-column gap-3">
       
-      <!-- 🆕 CAMPO NUEVO 1: Nombre del Paciente -->
-      <div class="apple-input-wrapper">
-        <label class="apple-label">Nombre y Apellido *</label>
-        <div class="input-group-apple">
-          <i class="fa-regular fa-user icon-left text-secondary"></i>
-          <input type="text" formControlName="nombre" class="form-control-apple" placeholder="Ej. Malcolm Mercado">
+      <!-- ========================================================================= -->
+      <!-- 📅 PASO 1: AGENDAMIENTO (FECHA Y HORA)                                    -->
+      <!-- ========================================================================= -->
+      <div *ngIf="pasoActual === 1" class="animate__animated animate__fadeIn">
+        <!-- Campo: Fecha -->
+        <div class="apple-input-wrapper mb-3">
+          <label for="fechaCita" class="apple-label">¿Qué día deseas asistir? *</label>
+          <div class="input-group-apple">
+            <i class="fa-regular fa-calendar icon-left text-secondary"></i>
+            <input type="date" id="fechaCita" [(ngModel)]="date_appointment" [ngModelOptions]="{standalone: true}" class="form-control-apple">
+          </div>
+        </div>
+
+        <!-- Campo: Hora / Selector -->
+        <div class="apple-input-wrapper mb-3">
+          <label for="horaCita" class="apple-label">Horas disponibles *</label>
+          <div class="input-group-apple">
+            <i class="fa-regular fa-clock icon-left text-secondary"></i>
+            <select id="horaCita" class="form-select-apple" (change)="selecSegment($event)">
+              <option selected disabled>Seleccione una hora...</option>
+              <option *ngFor="let SEGMENT of segments" [value]="SEGMENT">
+                {{ SEGMENT.format_segment.format_hour_start }} a {{ SEGMENT.format_segment.format_hour_end }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ACCIONES PASO 1 -->
+        <div class="d-flex flex-column gap-2 mt-4">
+          <button type="button" (click)="irAlPaso(2)" class="btn btn-apple-action-primary py-3">
+            Continuar <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
+          </button>
+          <button type="button" class="btn btn-apple-action-secondary py-3" data-bs-dismiss="offcanvas">
+            Cancelar
+          </button>
         </div>
       </div>
 
-      <!-- 🆕 CAMPO NUEVO 2: Teléfono Celular -->
-      <div class="apple-input-wrapper">
-        <label class="apple-label">Número de Teléfono *</label>
-        <div class="input-group-apple">
-          <i class="fa-solid fa-phone icon-left text-secondary"></i>
-          <input type="tel" formControlName="phone" class="form-control-apple" placeholder="Ej. +584121234567">
+      <!-- ========================================================================= -->
+      <!-- 👤 PASO 2: INFORMACIÓN DEL PACIENTE                                       -->
+      <!-- ========================================================================= -->
+      <div *ngIf="pasoActual === 2" class="animate__animated animate__fadeIn">
+        
+        <p class="text-secondary small mb-3">Completa tus datos para confirmar tu espacio en la agenda médica.</p>
+
+        <div class="row g-2">
+          <!-- Campo: Nombre -->
+          <div class="col-6 apple-input-wrapper mb-2">
+            <label class="apple-label">Nombre *</label>
+            <div class="input-group-apple">
+              <i class="fa-regular fa-user icon-left text-secondary"></i>
+              <input type="text" formControlName="nombre" class="form-control-apple" placeholder="Ej. Malcolm">
+            </div>
+          </div>
+
+          <!-- Campo: Apellido -->
+          <div class="col-6 apple-input-wrapper mb-2">
+            <label class="apple-label">Apellido *</label>
+            <div class="input-group-apple">
+              <i class="fa-regular fa-user icon-left text-secondary"></i>
+              <input type="text" formControlName="apellido" class="form-control-apple" placeholder="Ej. Mercado">
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- 🆕 CAMPO NUEVO 3: Correo Electrónico -->
-      <div class="apple-input-wrapper">
-        <label class="apple-label">Correo Electrónico *</label>
-        <div class="input-group-apple">
-          <i class="fa-regular fa-envelope icon-left text-secondary"></i>
-          <input type="email" formControlName="email" class="form-control-apple" placeholder="ejemplo@klyntic.com">
+        <!-- Campo: Cédula de Identidad -->
+        <div class="apple-input-wrapper mb-2">
+          <label class="apple-label">Cédula de Identidad *</label>
+          <div class="input-group-apple">
+            <i class="fa-regular fa-id-card icon-left text-secondary"></i>
+            <input type="text" formControlName="n_doc" class="form-control-apple" placeholder="Ej. 12345678">
+          </div>
         </div>
-      </div>
 
-      <!-- Campo: Fecha (Ya lo tenías) -->
-      <div class="apple-input-wrapper">
-        <label for="fechaCita" class="apple-label">Fecha de la Cita *</label>
-        <div class="input-group-apple">
-          <i class="fa-regular fa-calendar icon-left text-secondary"></i>
-          <input type="date" id="fechaCita" [(ngModel)]="date_appointment" [ngModelOptions]="{standalone: true}" class="form-control-apple">
+        <!-- Campo: WhatsApp -->
+        <div class="apple-input-wrapper mb-2">
+          <label class="apple-label">Número de WhatsApp *</label>
+          <div class="input-group-apple">
+            <i class="fa-brands fa-whatsapp icon-left text-secondary"></i>
+            <input type="tel" formControlName="phone" class="form-control-apple" placeholder="Ej. 04121234567">
+          </div>
         </div>
-      </div>
 
-      <!-- Campo: Hora / Selector (Ya lo tenías) -->
-      <div class="apple-input-wrapper">
-        <label for="horaCita" class="apple-label">Hora disponible *</label>
-        <div class="input-group-apple">
-          <i class="fa-regular fa-clock icon-left text-secondary"></i>
-          <select id="horaCita" class="form-select-apple" (change)="selecSegment($event)">
-            <option selected disabled>Seleccione una hora...</option>
-            <option *ngFor="let SEGMENT of segments" [value]="SEGMENT">
-              {{ SEGMENT.format_segment.format_hour_start }} a {{ SEGMENT.format_segment.format_hour_end }}
-            </option>
-          </select>
+        <!-- Alerta de validación interna -->
+        <div *ngIf="text_validation" class="apple-toast-validation error mt-2 d-flex align-items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation text-danger"></i>
+          <span class="small fw-medium">{{ text_validation }}</span>
         </div>
-      </div>
 
-      <!-- Alerta de validación en texto -->
-      <div *ngIf="text_validation" class="apple-toast-validation error mt-2 d-flex align-items-center gap-2">
-        <i class="fa-solid fa-circle-exclamation text-danger"></i>
-        <span class="small fw-medium">{{ text_validation }}</span>
-      </div>
-
-      <!-- ACCIONES: Botones de guardar y cancelar -->
-      <div class="d-flex flex-column gap-2 mt-4">
-        <button type="button" (click)="saveExpress()" [disabled]="cargando" class="btn btn-apple-action-primary py-3">
-          <span *ngIf="!cargando">Confirmar y Solicitar Cita</span>
-          <span *ngIf="cargando"><i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando...</span>
-        </button>
-        <button type="button" class="btn btn-apple-action-secondary py-3" data-bs-dismiss="offcanvas">
-          Cancelar
-        </button>
+        <!-- ACCIONES PASO 2 -->
+        <div class="d-flex flex-column gap-2 mt-4">
+          <button type="button" (click)="saveExpress()" [disabled]="cargando" class="btn btn-apple-action-primary py-3">
+            <span *ngIf="!cargando"><i class="fa-solid fa-circle-check me-2"></i> Confirmar y Reservar</span>
+            <span *ngIf="cargando"><i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando solicitud...</span>
+          </button>
+          <button type="button" (click)="irAlPaso(1)" class="btn btn-apple-action-secondary py-3 text-secondary">
+            <i class="fa-solid fa-chevron-left me-2"></i> Volver al paso anterior
+          </button>
+        </div>
       </div>
 
     </form>
