@@ -1,0 +1,36 @@
+
+<footer class="footer" id="contacto">
+    <div class="footer-container">
+        <!-- <div class="footer-grid">
+            <div class="footer-section">
+                <h4 [ngStyle]="{'color': tiendaSelected?.color_primario }">{{tiendaSelected?.nombre}}</h4>
+                <p>{{tiendaSelected?.ciudad}}, {{tiendaSelected?.pais}}</p>
+                <div class="col-xs-12" [innerHtml]="tiendaSelected?.direccion " class="directinonfo" ></div>
+            </div>
+                <br>
+            <div class="footer-section">
+                <h4> {{ 'Contáctanos vía Whatsapp'  }}</h4>
+                <ul class="footer-links">
+                    <li><a href="#">
+                        <i class="fab fa-whatsapp"></i> {{tiendaSelected?.telefono}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section" *ngIf="redssociales && redssociales.length > 0">
+                <h4>{{ 'Síguenos en'  }}:</h4>
+                <ul class="footer-links social">
+                    <li *ngFor="let red of redssociales">
+                        <a [href]="'https://' +red.name_red +'.com/'+red.usuario_red" target="_blank">
+                            
+                            <i class="fab {{red.icono}}"></i>
+                            {{red.name_red}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div> -->
+        <div class="footer-bottom">
+            <p>&copy; .{{ '2026 Klyntic App. Todos los derechos reservados'  }}</p>
+        </div>
+    </div>
+</footer>

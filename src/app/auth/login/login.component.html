@@ -1,0 +1,146 @@
+<!-- <app-header></app-header> -->
+<div class="login" id="page">
+
+    <section class="boxed-sm">
+        <div class="container">
+            <div class="login-wrapper">
+                <a routerLink="/">
+                    <!-- <img [src]="(tiendaSelected.img|| '') | imagenPipe: 'tiendas'"
+                        style="" [alt]="tiendaSelected.nombre"> -->
+                </a>
+                <div class="login">
+                    <h3>Ingresar</h3><br>
+
+                    <!-- tab -->
+                    <!-- Agregamos d-flex y gap-2 al ul para alinearlos horizontalmente -->
+                    <ul class="nav list-unstyled d-flex flex-row gap-2 mb-3">
+                        <li>
+                            <!-- <button type="button" class="btn "
+                                [ngStyle]="{'border-color': tiendaSelected.color_primario }"
+                                [ngStyle]="{'color': tiendaSelected.color_primario }"
+                                [ngClass]="{'active': option_selectedd == 1}" (click)="optionSelected(1)">
+                                Con Correo
+                            </button> -->
+                        </li>
+                        <li>
+                            <!-- <button type="button" class="btn "
+                                [ngStyle]="{'border-color': tiendaSelected.color_primario }"
+                                [ngStyle]="{'color': tiendaSelected.color_primario }"
+                                [ngClass]="{'active': option_selectedd == 2}" (click)="optionSelected(2)">
+                                Con Teléfono
+                            </button> -->
+                        </li>
+                    </ul>
+
+                    <!-- tab -->
+                    <div *ngIf="option_selectedd == 1">
+                        <form class="form-horizontal form-material" id="loginform" [formGroup]="loginForm"
+                            autocapitalize="off">
+                            <div class="form-group organic-form-2 m-t-40">
+
+                                <div class="col-xs-12">
+                                    <label for="validationCustom02" class="form-label labelgoogle">
+                                        <input type="text" formControlName="email" class="form-control input"
+                                            id="validationCustom02" placeholder=" " required>
+                                        <span class="label__name">
+                                            {{'Correo Electrónico'}} <span class="login-danger">*</span>
+
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group organic-form-2">
+
+                                <div class="col-xs-12">
+                                    <label for="validationCustom02" class="form-label labelgoogle">
+                                        <input type="password" formControlName="password" class="form-control input"
+                                            id="validationCustom02" placeholder=" " required>
+                                        <span class="label__name">
+                                            {{'Contraseña'}} <span class="login-danger">*</span>
+
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- <div class="form-group organic-form-2 row">
+                            <div class="col-md-12">
+                                <div class="checkbox remember-me checkbox-primary pull-left p-t-0">
+                                    <input id="checkbox-signup" formControlName="remember" type="checkbox" class="filled-in chk-col-light-blue">
+                                    <label for="checkbox-signup"> Remember me </label>
+                                </div>
+                                <a routerLink="/recovery-password" id="to-recover" class="text-dark pull-right"><i class="fa fa-lock m-r-5"></i> Forgot password?</a> </div>
+                        </div> -->
+                            <div class="form-group organic-form-2 text-center m-t-20">
+                                <div class="col-xs-12">
+                                    <!-- <button class="btn btn-lg btn-block text-uppercase btn-rounded"
+                                        [ngStyle]="{'border-color': tiendaSelected?.color_primario }"
+                                        [ngStyle]="{'color': tiendaSelected?.color_primario }"
+                                        type="button" (click)="login()">Ingresar</button> -->
+                                </div>
+                            </div>
+                            <!-- <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 m-t-10 text-center" id="google-btn">
+                                <div id="my-signin2"></div>
+                            </div>
+                        </div> -->
+                        </form>
+                    </div>
+                    <div *ngIf="option_selectedd == 2">
+                        <div class="clear"></div>
+                        <form class="form-horizontal form-material" id="loginform" [formGroup]="formExpress"
+                            autocapitalize="off">
+                            <div class="form-group organic-form-2 m-t-40">
+
+                                <div class="col-xs-12">
+                                    <label for="validationCustom02" class="form-label labelgoogle">
+                                        <input type="text" formControlName="first_name" class="form-control input"
+                                            id="validationCustom02" placeholder=" " required>
+                                        <span class="label__name">
+                                            Nombre <span class="login-danger">*</span>
+
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group organic-form-2">
+
+                                <div class="col-xs-12">
+                                    <label for="validationCustom02" class="form-label labelgoogle">
+                                        <input type="text" formControlName="telefono" class="form-control input"
+                                            id="validationCustom02" placeholder=" " required>
+                                        <span class="label__name">
+                                            Teléfono <span class="login-danger">*</span>
+
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group organic-form-2 text-center m-t-20">
+                                <div class="col-xs-12">
+                                    <!-- <button class="btn btn-lg btn-block text-uppercase btn-rounded"
+                                        [ngStyle]="{'border-color': tiendaSelected?.color_primario }"
+                                        [ngStyle]="{'color': tiendaSelected?.color_primario }"
+                                        type="button" (click)="enviarFormularioExpress()">Ingresar</button> -->
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="form-group organic-form-2 mt-2">
+                        <!-- <div class="col-sm-12 text-center">
+                            ¿No posees cuenta? <a routerLink="/registro"
+                                class=" m-l-5" [ngStyle]="{'color': tiendaSelected?.color_primario }"><b>Registrarme</b></a>
+                        </div> -->
+                    </div>
+                    <div class="form-group organic-form-2 mt-2">
+                        <!-- <div class="col-sm-12 text-center">
+                            Volver al <a routerLink="/" class="m-l-5" [ngStyle]="{'color': tiendaSelected?.color_primario }"><b>Inicio</b></a>
+                        </div> -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>

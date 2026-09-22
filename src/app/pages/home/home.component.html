@@ -1,0 +1,127 @@
+<div class="apple-container container py-5">
+  
+  <!-- HEADER: Perfil del Médico -->
+  <header class="text-center mb-5 animate__animated animate__fadeIn">
+    <div class="position-relative d-inline-block mb-3">
+        <span class="logo"><img src="assets/svg/logoklintic.svg" alt="klyntic" > </span>
+        <h1 class="doctor-name fw-bold mb-3">Express</h1>
+      <img [src]="doctor?.img || 'assets/img/default-doctor.png'" 
+           alt="Dra. Belén Silvestri" 
+           class="doctor-avatar shadow-sm border border-light">
+      <span class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle p-2"></span>
+    </div>
+    
+    <h1 class="doctor-name fw-bold mb-1">Dra. {{ doctor?.first_name }} {{ doctor?.last_name }}</h1>
+    <p class="doctor-specialty text-secondary fw-semibold mb-2">
+      <i class="fa-solid fa-stethoscope me-1 text-primary"></i> Gastroenterólogo
+    </p>
+    <div class="d-flex justify-content-center gap-2">
+      <span class="badge apple-badge-blue"><i class="fa-solid fa-location-dot me-1"></i> Caracas</span>
+      <span class="badge apple-badge-green"><i class="fa-solid fa-circle-check me-1"></i> Verificado</span>
+    </div>
+  </header>
+
+  <!-- GRID DE INFORMACIÓN (Estilo Apple Cards) -->
+  <main class="row g-4 justify-content-center">
+    
+    <!-- TARJETA 1: Consultas y Precios -->
+    <section class="col-12 col-md-6 col-lg-5">
+      <div class="apple-card h-100 p-4 border-0">
+        <div class="card-apple-icon bg-primary-subtle text-primary mb-3">
+          <i class="fa-solid fa-user-doctor fs-4"></i>
+        </div>
+        <h2 class="h5 fw-bold mb-3">Consultas y Tarifas</h2>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
+            <span class="text-secondary fw-medium">Consulta Presencial</span>
+            <span class="fw-bold text-dark">${{  '00' }}</span>
+          </li>
+          <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
+            <span class="text-secondary fw-medium">Evaluación de Gastroenterología</span>
+            <span class="fw-bold text-dark">${{  '00' }}</span>
+          </li>
+          <li class="d-flex justify-content-between align-items-center pt-2.5">
+            <span class="text-secondary fw-medium">Monedas Aceptadas</span>
+            <span class="badge bg-light text-dark border fw-semibold">USD / EUR / BS</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TARJETA 2: Ubicación y Horarios -->
+    <section class="col-12 col-md-6 col-lg-5">
+      <div class="apple-card h-100 p-4 border-0">
+        <div class="card-apple-icon bg-success-subtle text-success mb-3">
+          <i class="fa-solid fa-map-location-dot fs-4"></i>
+        </div>
+        <h2 class="h5 fw-bold mb-3">Ubicación</h2>
+        <p class="fw-semibold text-dark mb-1">{{   'Policlínica La Arboleda' }}</p>
+        <p class="text-secondary small mb-3">
+          {{  'Av. Cajigal, San Bernardino. Piso 2, Consultorio 24.' }}
+        </p>
+        <div class="bg-light rounded-3 p-3 d-flex align-items-center gap-3">
+          <i class="fa-regular fa-clock text-secondary fs-5"></i>
+          <div>
+            <p class="mb-0 small fw-bold text-dark">Horario de Atención</p>
+            <p class="mb-0 text-secondary x-small">{{ 'Lun a Vie • 8:00 AM - 4:00 PM' }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETA 3: Servicios Especializados -->
+    <section class="col-12 col-md-6 col-lg-5">
+      <div class="apple-card h-100 p-4 border-0">
+        <div class="card-apple-icon bg-purple-subtle text-purple mb-3">
+          <i class="fa-solid fa-microscope fs-4"></i>
+        </div>
+        <h2 class="h5 fw-bold mb-3">Servicios y Procedimientos</h2>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="apple-pill"><i class="fa-solid fa-check text-primary me-1"></i> Endoscopia</span>
+          <span class="apple-pill"><i class="fa-solid fa-check text-primary me-1"></i> Colonoscopia</span>
+          <span class="apple-pill"><i class="fa-solid fa-check text-primary me-1"></i> Eco Abdominal</span>
+          <span class="apple-pill"><i class="fa-solid fa-check text-primary me-1"></i> Tratamiento de Reflujo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETA 4: Esquema de Vacunación / Preventivo -->
+    <section class="col-12 col-md-6 col-lg-5">
+      <div class="apple-card h-100 p-4 border-0">
+        <div class="card-apple-icon bg-warning-subtle text-warning mb-3">
+          <i class="fa-solid fa-syringe fs-4"></i>
+        </div>
+        <h2 class="h5 fw-bold mb-3">Inmunización y Vacunas</h2>
+        <p class="text-secondary small mb-3">Disponibilidad de vacunas preventivas asociadas a la salud digestiva y sistémica:</p>
+        <div class="d-flex flex-column gap-2">
+          <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3">
+            <span class="small fw-medium text-dark"><i class="fa-solid fa-shield-virus me-2 text-warning"></i> Hepatitis A y B</span>
+            <span class="badge bg-success-subtle text-success rounded-pill fw-semibold x-small">Disponible</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3">
+            <span class="small fw-medium text-dark"><i class="fa-solid fa-shield-virus me-2 text-warning"></i> VPH (Esquema Completo)</span>
+            <span class="badge bg-success-subtle text-success rounded-pill fw-semibold x-small">Disponible</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTÓN DE ACCIÓN CENTRAL (El bello botón Apple) -->
+<footer class="text-center mt-5 sticky-bottom-mobile animate__animated animate__idUp">
+  <!-- 🚀 SE AGREGAN LOS ATRIBUTOS DE ACCIÓN HACIA EL OFFCANVAS -->
+  <button type="button" 
+          data-bs-toggle="offcanvas" 
+          data-bs-target="#offcanvasCita" 
+          class="btn btn-apple-primary btn-lg px-5 py-3 shadow-lg">
+    Solicitar Cita Médica <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
+  </button>
+  <p class="text-secondary x-small mt-2"><i class="fa-solid fa-lock me-1"></i> Reserva gestionada de forma segura por Klyntic</p>
+  <p class="text-secondary x-small mt-2">&copy; 2026 Klyntic App. Todos los derechos reservados</p>
+</footer>
+
+</div>
+
+<app-agendar-cita></app-agendar-cita>
+

@@ -1,0 +1,213 @@
+<!-- ============================================================== -->
+<!-- Main wrapper - style you can find in pages.scss -->
+<!-- ============================================================== -->
+<section id="wrapper" class=" login-register" style="background-image:url(../assets/images/background/login-register.jpg);">
+    <div class="login-box card">
+        <div class="card-body">
+            <form [formGroup]="registerForm" (ngSubmit)="crearUsuario()" autocapitalize="off" class="form-horizontal form-material" id="loginform">
+                <a routerLink="/" class="ilogo">
+                     <!-- <img [src]="tiendaSelected.img | imagenPipe: 'tiendas'" style="width: 80px; height: auto; margin:auto"   [alt]="tiendaSelected.nombre"> -->
+                    <!-- <img src="../assets/images/logo.png" alt="Home" /> -->
+                    <br/>
+                    <!-- <img src="../assets/images/logo-text.png" alt="Home" /> -->
+                </a>
+                <h3 class="box-title m-t-40 m-b-0">Registrate ahora!</h3>
+                <small>Crea una cuenta para disfrutar la experiencia.</small>
+                <br>
+                <br>
+                  <!-- Step Indicator -->
+                <div class="step-indicator m-t-20 m-b-20">
+                    <div class="step" 
+                    [ngClass]="{'active': currentStep >= 1, 'completed': currentStep > 1}">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Personal Info</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" [ngClass]="{'active': currentStep >= 2}">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Account</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Personal Info (first_name, last_name) -->
+                @if(currentStep === 1){
+                <div class="form-group m-t-20">
+                    <div class="col-xs-12">
+                        <label for="validationCustom02" class="form-label labelgoogle">
+                            <input type="text" formControlName="first_name" class="form-control input"
+                                id="validationCustom02" placeholder=" " required>
+                            <span class="label__name">
+                                {{'Nombre'}} <span class="login-danger">*</span>
+                            </span>
+                        </label>
+                        @if(registerForm.controls['first_name'].touched){
+
+                        <div class="text-danger">
+                            @if(registerForm.controls['first_name'].errors?.['required']){
+                            <span>{{'Campo Requerido'}}</span>
+                            }
+                            @if(registerForm.controls['first_name'].errors?.['minlength']){
+                            <span>{{'3 Charecters Minimal'}}</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group m-t-20">
+                    <!-- Apellido -->
+                    <div class="col-xs-12">
+                        <label for="validationCustom02" class="form-label labelgoogle">
+                            <input type="text" formControlName="last_name" class="form-control input"
+                                id="validationCustom02" placeholder="" required>
+                            <span class="label__name">
+                                {{'Apellido'}} <span class="login-danger">*</span>
+
+                            </span>
+                        </label>
+                        @if(registerForm.controls['last_name'].touched){
+
+                        <div class="text-danger">
+                            @if(registerForm.controls['last_name'].errors?.['required']){
+                            <span>{{'Campo Requerido'}}</span>
+                            }
+                            @if(registerForm.controls['last_name'].errors?.['minlength']){
+                            <span>{{'3 Charecters Minimal'}}</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Step 2: Account Info (email, password, password2, terminos) -->
+                @if(currentStep === 2){
+                <div class="form-group ">
+                    <!-- Email -->
+                    <div class="col-xs-12">
+                        <label for="validationCustom02" class="form-label labelgoogle">
+                            <input type="text" formControlName="email" class="form-control input"
+                                id="validationCustom02" placeholder=" " required>
+                            <span class="label__name">
+                                {{'Email'}} <span class="login-danger">*</span>
+
+                            </span>
+                        </label>
+                        @if(registerForm.controls['email'].touched){
+
+                        <div class="text-danger">
+                            @if(registerForm.controls['email'].errors?.['required']){
+                            <span>{{'Campo Requerido'}}</span>
+                            }
+                            @if(registerForm.controls['email'].errors?.['minlength']){
+                            <span>{{'3 Charecters Minimal'}}</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <!-- Password -->
+                    <div class="col-xs-12">
+                        <label for="validationCustom02" class="form-label labelgoogle">
+                            <input type="password" formControlName="password" class="form-control input"
+                                id="validationCustom02" placeholder=" " required>
+                            <span class="label__name">
+                                {{'Password'}} <span class="login-danger">*</span>
+
+                            </span>
+                        </label>
+                        @if(registerForm.controls['password'].touched){
+
+                        <div class="text-danger">
+                            @if(registerForm.controls['password'].errors?.['required']){
+                            <span>{{'Campo Requerido'}}</span>
+                            }
+                            @if(registerForm.controls['password'].errors?.['minlength']){
+                            <span>{{'3 Charecters Minimal'}}</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group">
+                    <!-- Password2 -->
+                    <div class="col-xs-12">
+                        <label for="validationCustom02" class="form-label labelgoogle">
+                            <input type="password" formControlName="password2" class="form-control input"
+                                id="validationCustom02" placeholder=" " required>
+                            <span class="label__name">
+                                {{'Confirmar Password'}} <span class="login-danger">*</span>
+
+                            </span>
+                        </label>
+                        @if(registerForm.controls['password2'].touched){
+
+                        <div class="text-danger">
+                            @if(registerForm.controls['password2'].errors?.['required']){
+                            <span>{{'Campo Requerido'}}</span>
+                            }
+                            @if(registerForm.controls['password2'].errors?.['minlength']){
+                            <span>{{'3 Charecters Minimal'}}</span>
+                            }
+                            @if(registerForm.controls['password2'].errors?.['noEsIgual']){
+                            <span>{{'Las contraseñas no coinciden'}}</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                <!-- <div class="form-group row">
+                    <div class="col-md-12">
+                        <div class="checkbox checkbox-primary p-t-0">
+                            <input id="checkbox-signup" formControlName="terminos" type="checkbox">
+                            <label for="checkbox-signup"> I agree to all <a href="#">Terms</a></label>
+                        </div>
+                    </div>
+                </div> -->
+                }
+                <div class="row">
+                    <div class="col text-danter">
+                        <p *ngIf="campoNoValido('first_name')">* El nombre es obligatorio</p>
+                        <p *ngIf="campoNoValido('last_name')">* El apellido es obligatorio</p>
+                        <p *ngIf="campoNoValido('email')">* El email es obligatorio y debe ser valido</p>
+                        <!-- <p *ngIf="aceptaTerminos()">* Debe aceptar los términos de uso</p> -->
+                        <p *ngIf="passwordNoValido()">* El password deben ser iguales </p>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group text-center m-t-20">
+                    <div class="col-xs-12">
+                        @if(currentStep === 1){
+                        <button class="btn btn-success btn-lg btn-block text-uppercase waves-effect waves-light"
+                            type="button" (click)="nextStep()">Siguiente</button>
+                        }
+                        @if(currentStep === 2){
+                        <div class="row">
+                            <div class="col-6">
+                                <button class="btn btn-secondary btn-lg btn-block text-uppercase waves-effect waves-light"
+                                    type="button" (click)="prevStep()">Anterior</button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-success btn-lg btn-block text-uppercase waves-effect waves-light"
+                                    type="submit">Registrarme</button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="form-group mb-0 mt-3">
+                    <div class="col-sm-12 text-center">
+                        <p>¿Tienes Cuenta? <a routerLink="/login" class="text-success m-l-5">
+                            <b>Ingresar</b>
+                        </a>
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- ============================================================== -->
+<!-- End Wrapper -->
+<!-- ============================================================== -->

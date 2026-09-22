@@ -1,0 +1,157 @@
+// Variables locales para el Bottom Sheet
+$apple-sheet-bg: #ffffff;
+$apple-sheet-radius: 32px; // Bordes súper redondeados nativos de iOS 16+
+$input-bg: #f2f2f7; // Gris claro para campos de texto de Apple
+
+.offcanvas-bottom.apple-bottom-sheet {
+  border-top-left-radius: $apple-sheet-radius !important;
+  border-top-right-radius: $apple-sheet-radius !important;
+  border-top: none;
+  background-color: $apple-sheet-bg;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.12);
+  max-width: 550px; // Evita que en escritorio se estire de forma fea en toda la pantalla
+  margin: 0 auto;
+
+  // Barra de arrastre superior
+  .apple-drag-handle {
+    width: 36px;
+    height: 5px;
+    background-color: rgba(0, 0, 0, 0.12);
+    border-radius: 2.5px;
+  }
+
+  // Botón de cerrar tipo iOS (Círculo sutil)
+  .btn-close-apple {
+    border: none;
+    background: #f2f2f7;
+    color: #8e8e93;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #e5e5ea;
+    }
+  }
+
+  // Alerta informativa interna
+  .apple-alert-info {
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 16px;
+
+    .alert-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  // Estructura de Inputs Estilo Apple
+  .apple-input-wrapper {
+    display: flex;
+    flex-column: column;
+    gap: 6px;
+
+    .apple-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1d1d1f;
+      padding-left: 4px;
+    }
+
+    .input-group-apple {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .icon-left {
+        position: absolute;
+        left: 14px;
+        z-index: 5;
+        font-size: 0.95rem;
+      }
+
+      .form-control-apple, .form-select-apple {
+        width: 100%;
+        background-color: $input-bg;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 12px 12px 40px; // Espaciado izquierdo para el icono
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #1d1d1f;
+        transition: all 0.2s ease;
+
+        &:focus {
+          outline: none;
+          background-color: #e5e5ea;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  // Tarjeta miniatura del Doctor
+  .apple-mini-card {
+    background-color: #fafafa;
+    border: 1px solid #f2f2f7;
+    border-radius: 16px;
+
+    .doctor-initials-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+  }
+
+  // Botones de acción del Formulario
+  .btn-apple-action-primary {
+    background-color: #0071e3;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 16px;
+    border: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #0077ed;
+    }
+  }
+
+  .btn-apple-action-secondary {
+    background-color: transparent;
+    color: #ff3b30; // Rojo iOS de cancelación
+    font-weight: 600;
+    border-radius: 16px;
+    border: none;
+
+    &:hover {
+      background-color: rgba(#ff3b30, 0.06);
+    }
+  }
+
+  // Mensaje de Validación de Error
+  .apple-toast-validation {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background-color: rgba(#ff3b30, 0.08);
+    color: #d32f2f;
+  }
+
+  // Auxiliares
+  .x-small { font-size: 0.75rem; }
+  .tracking-wider { letter-spacing: 0.5px; }
+}

@@ -1,0 +1,102 @@
+<div class="offcanvas offcanvas-bottom apple-bottom-sheet h-auto" tabindex="-1" id="offcanvasCita" aria-labelledby="offcanvasCitaLabel">
+  
+  <!-- Barra decorativa estilo iOS -->
+  <div class="apple-drag-handle mx-auto mt-2"></div>
+
+  <div class="offcanvas-header px-4 pt-3 pb-2 border-0">
+    <div class="d-flex flex-column">
+      <span class="text-primary fw-bold text-uppercase x-small tracking-wider">Klyntic Express</span>
+      <h5 class="offcanvas-title fw-bold h4" id="offcanvasCitaLabel">Solicitar Cita Médica</h5>
+    </div>
+    <button type="button" class="btn-close-apple" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <div class="offcanvas-body px-4 pb-5">
+    
+    <!-- Alerta informativa de la especialidad -->
+    <div class="apple-alert-info d-flex align-items-center gap-3 mb-4">
+      <div class="alert-icon-circle bg-primary-subtle text-primary">
+        <i class="fa-solid fa-stethoscope"></i>
+      </div>
+      <div>
+        <p class="mb-0 text-secondary x-small fw-medium">Especialidad seleccionada</p>
+        <p class="mb-0 fw-bold text-dark">{{ speciality?.name || 'Gastroenterología' }}</p>
+      </div>
+    </div>
+
+    <!-- 🚀 FORMULARIO VINCULADO AL GRUPO REACTIVO -->
+    <form [formGroup]="expressPatientForm" class="apple-form-group d-flex flex-column gap-3">
+      
+      <!-- 🆕 CAMPO NUEVO 1: Nombre del Paciente -->
+      <div class="apple-input-wrapper">
+        <label class="apple-label">Nombre y Apellido *</label>
+        <div class="input-group-apple">
+          <i class="fa-regular fa-user icon-left text-secondary"></i>
+          <input type="text" formControlName="nombre" class="form-control-apple" placeholder="Ej. Malcolm Mercado">
+        </div>
+      </div>
+
+      <!-- 🆕 CAMPO NUEVO 2: Teléfono Celular -->
+      <div class="apple-input-wrapper">
+        <label class="apple-label">Número de Teléfono *</label>
+        <div class="input-group-apple">
+          <i class="fa-solid fa-phone icon-left text-secondary"></i>
+          <input type="tel" formControlName="phone" class="form-control-apple" placeholder="Ej. +584121234567">
+        </div>
+      </div>
+
+      <!-- 🆕 CAMPO NUEVO 3: Correo Electrónico -->
+      <div class="apple-input-wrapper">
+        <label class="apple-label">Correo Electrónico *</label>
+        <div class="input-group-apple">
+          <i class="fa-regular fa-envelope icon-left text-secondary"></i>
+          <input type="email" formControlName="email" class="form-control-apple" placeholder="ejemplo@klyntic.com">
+        </div>
+      </div>
+
+      <!-- Campo: Fecha (Ya lo tenías) -->
+      <div class="apple-input-wrapper">
+        <label for="fechaCita" class="apple-label">Fecha de la Cita *</label>
+        <div class="input-group-apple">
+          <i class="fa-regular fa-calendar icon-left text-secondary"></i>
+          <input type="date" id="fechaCita" [(ngModel)]="date_appointment" [ngModelOptions]="{standalone: true}" class="form-control-apple">
+        </div>
+      </div>
+
+      <!-- Campo: Hora / Selector (Ya lo tenías) -->
+      <div class="apple-input-wrapper">
+        <label for="horaCita" class="apple-label">Hora disponible *</label>
+        <div class="input-group-apple">
+          <i class="fa-regular fa-clock icon-left text-secondary"></i>
+          <select id="horaCita" class="form-select-apple" (change)="selecSegment($event)">
+            <option selected disabled>Seleccione una hora...</option>
+            <option *ngFor="let SEGMENT of segments" [value]="SEGMENT">
+              {{ SEGMENT.format_segment.format_hour_start }} a {{ SEGMENT.format_segment.format_hour_end }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Alerta de validación en texto -->
+      <div *ngIf="text_validation" class="apple-toast-validation error mt-2 d-flex align-items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation text-danger"></i>
+        <span class="small fw-medium">{{ text_validation }}</span>
+      </div>
+
+      <!-- ACCIONES: Botones de guardar y cancelar -->
+      <div class="d-flex flex-column gap-2 mt-4">
+        <button type="button" (click)="saveExpress()" [disabled]="cargando" class="btn btn-apple-action-primary py-3">
+          <span *ngIf="!cargando">Confirmar y Solicitar Cita</span>
+          <span *ngIf="cargando"><i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando...</span>
+        </button>
+        <button type="button" class="btn btn-apple-action-secondary py-3" data-bs-dismiss="offcanvas">
+          Cancelar
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
