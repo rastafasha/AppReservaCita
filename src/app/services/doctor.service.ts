@@ -43,7 +43,7 @@ export class DoctorService {
 
   getAddressesByDoctor(doctorId: number): Observable<any> {
     const url = `${base_url}/doctor-addresses/doctor/${doctorId}`;
-    return this.http.get<any>(url, { headers: this.headers });
+    return this.http.get<any>(url);
   }
 
 }
