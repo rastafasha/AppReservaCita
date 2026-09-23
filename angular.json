@@ -64,15 +64,6 @@
                   "with": "src/environments/environment.kexpress.ts"
                 }
               ],
-              "assets": [
-                "src/assets",
-                {
-                  "glob": "_redirects",
-                  "input": "src",
-                  "output": "/"
-                }
-                
-              ],
               "budgets": [
                 {
                   "type": "initial",

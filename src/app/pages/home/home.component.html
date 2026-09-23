@@ -8,7 +8,7 @@
       
       <!-- Lado Izquierdo: Contenedor con la Imagen y el Badge Verde de Estado Activo -->
       <div class="position-relative flex-shrink-0">
-        <img [src]="consultorioSelected?.img_logo || 'assets/img/default-doctor.png'" 
+        <img [src]="consultorioSelected?.img | imagenPipe: 'staffs'" 
              [alt]="consultorioSelected?.name" 
              class="doctor-avatar shadow-sm">
         <span class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"></span>

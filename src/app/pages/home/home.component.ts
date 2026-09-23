@@ -7,12 +7,14 @@ import { Clinica } from '../../models/clinica.model';
 import { Title } from '@angular/platform-browser';
 import { ClinicaService } from '../../services/clinica.service';
 import { HeaderComponent } from '../../shared/header/header.component';
+import { ImagenPipe } from '../../pipes/imagen-pipe.pipe';
 declare var bootstrap: any;
 @Component({
   selector: 'app-home',
   imports: [
     AgendarCitaComponent,
-    HeaderComponent
+    HeaderComponent,
+    ImagenPipe
 ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
