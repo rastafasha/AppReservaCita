@@ -68,10 +68,10 @@
         </div>
 
         <!-- 3. LISTADO DE SUB-HORARIOS SELECCIONABLES (Tus tarjetas Apple de la primera foto) -->
-        <div class="apple-input-wrapper mb-3 animate__animated animate__fadeIn">
+        <app-loading *ngIf="loading"></app-loading>
+        <div class="apple-input-wrapper mb-3 animate__animated animate__fadeIn" *ngIf="!loading">
           <label class="apple-label fw-bold mb-2 text-primary">3. Selecciona una Hora Disponible *</label>
-          <app-loading *ngIf="loading"></app-loading>
-          <div class="apple-hours-list d-flex flex-column gap-2" *ngIf="!loading">
+          <div class="apple-hours-list d-flex flex-column gap-2" >
             @for (SEGMENT of segments; track SEGMENT) {
             @if (!SEGMENT.is_appointment) {
             <label class="apple-radio-hour-card d-flex align-items-center justify-content-between p-3"

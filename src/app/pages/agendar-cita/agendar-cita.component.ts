@@ -168,7 +168,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     this.loading = true;
     this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe((resp: any) => {
       console.log('📦 Respuesta cruda de Laravel:', resp);
-
+      this.loading = false;
       if (resp.message === 403 || !resp.doctor || resp.doctor.length === 0) {
         this.text_validation = resp.message_text;
         this.toastr.warning(this.text_validation);
@@ -185,7 +185,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
         } else {
           todosLosSegmentos = resp.segments || [];
         }
-        this.loading = false;
+        
         // 🔥 EL FILTRO DE AGRUPACIÓN IDÉNTICO AL OTRO COMPONENTE:
         // Si el paciente seleccionó una hora en el select de arriba (this.hour), 
         // filtramos el arreglo en caliente para dejar SOLO los segmentos que pertenezcan a ese bloque.
