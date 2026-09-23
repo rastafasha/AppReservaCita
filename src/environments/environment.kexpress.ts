@@ -5,7 +5,7 @@ export const environment = {
     url_servicios: 'https://backend-api-consultorio.onrender.com/api',
     url_media: 'https://res.cloudinary.com/dmv6aukai/image/upload/v1741275492/crmklyntic/uploads',
     //backend node CRM
-    backend_node_crm: "https://backend-crmklyntic-mean.onrender.com/api",
+    backend_node: "https://backend-crmklyntic-mean.onrender.com/api",
 
     nombreSelected: 'klytic-generic',
     
