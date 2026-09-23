@@ -21,7 +21,7 @@ export class AppComponent {
   private securityService = inject(SecurityService);
 
   ngOnInit(): void {
-    this.securityService.disableDeveloperTools(); // seguridad evitando acceder a la consola
+    // this.securityService.disableDeveloperTools(); // seguridad evitando acceder a la consola
     this.validarSubdominioEnProduccion();
   }
 

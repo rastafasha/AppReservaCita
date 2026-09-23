@@ -33,6 +33,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
   cargando: boolean = false;
   visible: boolean = false;
   animandoCierre: boolean = false;
+  loading: boolean = false;
 
   hours: any;
   hour: any;
@@ -160,12 +161,12 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     const data = {
       date_appointment: this.date_appointment,
       hour: this.hour,
-      speciality_id: this.speciality_id
+      speciality_id: this.DOCTOR.speciality.id
     }
 
     console.log(`📡 [Filtro Directo] Consultando con ID: ${this.DOCTOR_SELECTED}`);
-
-    this.appointmentService.lisFiterByDoctor(data, this.DOCTOR_SELECTED).subscribe((resp: any) => {
+    this.loading = true;
+    this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe((resp: any) => {
       console.log('📦 Respuesta cruda de Laravel:', resp);
 
       if (resp.message === 403 || !resp.doctor || resp.doctor.length === 0) {
@@ -193,11 +194,11 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
           this.segments = todosLosSegmentos.filter((seg: any) => {
             return seg.hour_id == this.hour ||
               seg.doctor_schedule_hour_id == this.hour ||
-              (seg.format_segment && seg.format_segment.hour_id == this.hour);
+              (seg.format_segment && seg.format_segment.hour_id == this.hour) ||
+              (seg.format_segment && seg.format_segment.hour == this.hour); // 👈 ¡Esta línea arregla el problema!
           });
-          console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora ID: ${this.hour}. Total: ${this.segments.length}`);
+          console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora ID/Texto: ${this.hour}. Total: ${this.segments.length}`);
         } else {
-          // Si no ha seleccionado ninguna hora arriba, las muestra todas por defecto
           this.segments = todosLosSegmentos;
         }
 
@@ -206,6 +207,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
           this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
         }
       }
+      this.loading = false;
     });
   }
 
@@ -270,7 +272,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     );
 
     // 📞 CONEXIÓN CON EL TELÉFONO DE MONGO: Le enviamos el mensaje al WhatsApp del médico dueño del subdominio
-    const numeroDestino = this.consultorio?.phone || "584120000000";
+    const numeroDestino = this.consultorio?.phone ;
 
     // Corregida la interpolación de la URL de WhatsApp wa.me/
     // window.open(`https://wa.me{numeroDestino}?text=${mensaje}`, '_blank');

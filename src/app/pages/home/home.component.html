@@ -1,4 +1,4 @@
-<app-loading *ngIf="isLoading"></app-loading>
+<app-loading *ngIf="isLoading" ></app-loading>
 <!-- 🍏 2. VISTA DE LA APLICACIÓN (Tu maquetación Apple con datos dinámicos) -->
 @if (!isLoading && consultorioSelected) {
   <app-header></app-header>
@@ -18,7 +18,7 @@
       <!-- Lado Derecho: Textos alineados horizontalmente -->
       <div class="flex-grow-1">
         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-          <h1 class="doctor-name fw-bold m-0">{{ consultorioSelected?.name || 'Especialista' }}</h1>
+          <h1 class="doctor-name fw-bold m-0">{{ consultorioSelected?.tipoClinica }}</h1>
           <span class="badge bg-success-subtle text-success rounded-pill fw-semibold border border-success-subtle apple-mini-badge">
             <i class="fa-solid fa-circle-check"></i>
           </span>
@@ -32,6 +32,11 @@
         <div class="d-flex align-items-center gap-1">
           <span class="location-text text-muted">
             <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ consultorioSelected?.ciudad || 'Caracas' }}
+          </span>
+        </div>
+        <div class="d-flex align-items-center gap-1" *ngIf="consultorioSelected?.phone">
+          <span class="location-text text-muted">
+            <i class="fa-brands fa-whatsapp text-success me-1"></i> {{ consultorioSelected?.phone  }}
           </span>
         </div>
       </div>

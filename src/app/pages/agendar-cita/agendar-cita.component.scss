@@ -11,6 +11,7 @@ $input-bg: #f2f2f7; // Gris claro para campos de texto de Apple
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.12);
   max-width: 550px; // Evita que en escritorio se estire de forma fea en toda la pantalla
   margin: 0 auto;
+  z-index: 9999;
 
   // Barra de arrastre superior
   .apple-drag-handle {
