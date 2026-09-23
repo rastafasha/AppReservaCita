@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ClinicaService } from './services/clinica.service'; // Ajusta la ruta a tu proyecto
 
