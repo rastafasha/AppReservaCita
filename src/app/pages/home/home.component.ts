@@ -53,7 +53,7 @@ export class HomeComponent {
     this.cargarDatosHome(); 
   }
 
-  private cargarDatosHome() {
+   private cargarDatosHome() {
     this.isLoading = true;
     const slugConsultorio = this.clinicaService.obtenerSlugDeUrl();
 
@@ -62,24 +62,30 @@ export class HomeComponent {
         switchMap((consultorio: any) => {
           this.consultorioSelected = consultorio;
           
-          // 1. 🔍 EXTRAEMOS EL ID
+          // 1. 🔍 Extraemos el ID corrupto original (ej: "11',")
           let rawId = consultorio?.user_id;
           
-          // 2. 🧹 LIMPIEZA TOTAL DEL ID (Aquí es donde se coloca para evitar el error 500 de PostgreSQL)
+          // 2. 🧽 LIMPIEZA ULTRA ESTRICTA: Forzamos a un número entero puro
           if (rawId) {
-            this.doctorId = String(rawId).replace(/[^0-9]/g, ''); 
+            // Removemos cualquier cosa que no sea dígito y convertimos a número entero
+            const idLimpioString = String(rawId).replace(/[^0-9]/g, '');
+            this.doctorId = parseInt(idLimpioString, 10); 
           } else {
-            this.doctorId = rawId;
+            this.doctorId = null;
           }
 
-          // 3. 🌐 SINCRONIZAMOS AMBAS PETICIONES (Perfil y Locaciones)
-          // Usamos switchMap para encadenar las consultas usando el ID ya limpio
+          console.log(`Buscando datos en el Backend para el ID Limpio de Doctor: ${this.doctorId}`);
+
+          // Si por alguna razón el ID no es válido, detenemos el flujo para no romper el backend
+          if (!this.doctorId || isNaN(this.doctorId)) {
+            throw new Error(`El consultorio no tiene un user_id válido asignado en el CRM: ${rawId}`);
+          }
+
+          // 3. 🌐 Ejecutamos las llamadas asíncronas con el ID numérico garantizado
           return this.doctorService.showDoctorProfile(this.doctorId).pipe(
             switchMap((perfilDoctor: any) => {
-              // Ahora pedimos las direcciones del doctor de forma ordenada
               return this.doctorService.getAddressesByDoctor(this.doctorId).pipe(
                 map((respLocaciones: any) => {
-                  // Retornamos los 3 conjuntos de datos unificados al subscribe
                   return { 
                     consultorio, 
                     perfilDoctor, 
@@ -93,12 +99,10 @@ export class HomeComponent {
       )
       .subscribe({
         next: ({ consultorio, perfilDoctor, direcciones }) => {
-          // Asignamos las propiedades globales de manera segura
           this.doctorSelected = perfilDoctor;
           this.locations = direcciones;
 
           if (consultorio) {
-            // 🎨 INTERPOLACIÓN Y CONTROL DE DISEÑO SAAS INTACTO
             const estiloPrevio = document.getElementById('css-dinamico-consultorio');
             if (estiloPrevio) estiloPrevio.remove();
 
@@ -109,7 +113,6 @@ export class HomeComponent {
               document.head.appendChild(estilo);
             }
 
-            // 🔥 LLAMADA UNIFICADA PARA EL SEO
             this.establecerSeoCardPremium(consultorio, perfilDoctor);
           }
 
@@ -122,6 +125,7 @@ export class HomeComponent {
         }
       });
   }
+
 
   ngOnDestroy() {
     if (this.consultorioSubscription) {
