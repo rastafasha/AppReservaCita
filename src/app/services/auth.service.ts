@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
-import { RegisterForm } from '../auth/interfaces/register-form.interface';
 import { Usuario } from '../models/usuario.model';
 import { environment } from '../../environments/environment';
 
@@ -135,16 +134,7 @@ export class AuthService {
     this.router.navigateByUrl('/home');
   }
 
-  crearUsuario(formData: RegisterForm) {
-    let URL = baseUrl + "/register";
-    return this.http.post(URL, formData)
-      .pipe(map(user => {
-        localStorage.setItem('auth_token', JSON.stringify(user));
-
-        return user;
-      }));
-  }
-
+ 
   
 
   

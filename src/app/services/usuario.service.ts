@@ -1,8 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RegisterForm } from '../auth/interfaces/register-form.interface';
-import { LoginForm } from '../auth/interfaces/login-form.interface';
-import { CargarUsuario } from '../auth/interfaces/cargar-usuarios.interface';
 
 import { tap, map, catchError } from 'rxjs/operators';
 import { BehaviorSubject, Observable, of } from 'rxjs';
@@ -155,13 +152,7 @@ export class UsuarioService {
       );
   }
 
-  crearUsuario(formData: RegisterForm) {
-    return this.http.post(`${base_url}/usuarios/registro`, formData).pipe(
-      tap((resp: any) => {
-        this.guardarLocalStorage(resp.token, resp.usuario);
-      })
-    );
-  }
+ 
   crearClienteExpress(formData: any) {
     return this.http.post(`${base_url}/usuarios/express`, formData).pipe(
       tap((resp: any) => {
@@ -183,35 +174,6 @@ export class UsuarioService {
       `${base_url}/usuarios/${this.uid}`,
       data,
       this.headers
-    );
-  }
-
-  cargarUsuarios(desde: number = 0) {
-    const url = `${base_url}/usuarios?desde=${desde}`;
-    return this.http.get<CargarUsuario>(url, this.headers).pipe(
-      map((resp) => {
-        const usuarios = resp.usuarios.map(
-          (user) =>
-            new Usuario(
-              user.first_name,
-              user.last_name,
-              user.pais,
-              user.telefono,
-              user.numdoc,
-              user.email,
-              '',
-              user.img,
-              user.google,
-              user.role,
-              user.uid
-            )
-        );
-
-        return {
-          total: resp.total,
-          usuarios,
-        };
-      })
     );
   }
 
