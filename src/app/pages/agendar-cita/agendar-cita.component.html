@@ -1,22 +1,24 @@
-<div class="offcanvas offcanvas-bottom apple-bottom-sheet h-auto" tabindex="-1" id="offcanvasCita" aria-labelledby="offcanvasCitaLabel">
-  
+<div class="offcanvas offcanvas-bottom apple-bottom-sheet h-auto" tabindex="-1" id="offcanvasCita"
+  aria-labelledby="offcanvasCitaLabel">
+
   <!-- Barra decorativa estilo iOS -->
   <div class="apple-drag-handle mx-auto mt-2"></div>
 
-  <div class="offcanvas-header px-4 pt-3 pb-2 border-0">
+  <div class="offcanvas-header px-4 pt-3 pb-2 border-0 justify-content-between">
     <div class="d-flex flex-column">
       <span class="text-primary fw-bold text-uppercase x-small tracking-wider">
         Paso {{ pasoActual }} de 2
       </span>
       <h5 class="offcanvas-title fw-bold h4" id="offcanvasCitaLabel">Solicitar Cita Médica</h5>
     </div>
-    <button type="button" class="btn-close-apple" (click)="cerrarOffcanvas()" data-bs-dismiss="offcanvas" aria-label="Close">
+    <button type="button" class="btn-close-apple" (click)="cerrarOffcanvas()" data-bs-dismiss="offcanvas"
+      aria-label="Close">
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
+<app-loading *ngIf="cargandoAgenda"></app-loading>
+  <div class="offcanvas-body px-4 pb-5" *ngIf="!cargandoAgenda">
 
-  <div class="offcanvas-body px-4 pb-5">
-    
     <!-- Alerta informativa de la especialidad -->
     <div class="apple-alert-info d-flex align-items-center gap-3 mb-4">
       <div class="alert-icon-circle bg-primary-subtle text-primary">
@@ -24,39 +26,81 @@
       </div>
       <div>
         <p class="mb-0 text-secondary x-small fw-medium">Especialidad seleccionada</p>
-        <p class="mb-0 fw-bold text-dark">{{ speciality?.name || 'Gastroenterología' }}</p>
+        <p class="mb-0 fw-bold text-dark">{{ DOCTOR.speciality?.name || 'Gastroenterología' }}</p>
       </div>
     </div>
 
     <!-- FORMULARIO REACTIVO EXPRESS -->
     <form [formGroup]="expressPatientForm" class="apple-form-group d-flex flex-column gap-3">
-      
+
       <!-- ========================================================================= -->
       <!-- 📅 PASO 1: AGENDAMIENTO (FECHA Y HORA)                                    -->
       <!-- ========================================================================= -->
       <div *ngIf="pasoActual === 1" class="animate__animated animate__fadeIn">
-        <!-- Campo: Fecha -->
-        <div class="apple-input-wrapper mb-3">
+        <!-- Campo: Fecha (Gatilla la búsqueda directa en Laravel al cambiar el día) -->
+
+        <!-- ASISTENTE DE RESERVAS EXPRESS -->
+        <div class="apple-input-wrapper mb-3 animate__animated animate__fadeIn">
           <label for="fechaCita" class="apple-label">¿Qué día deseas asistir? *</label>
           <div class="input-group-apple">
             <i class="fa-regular fa-calendar icon-left text-secondary"></i>
-            <input type="date" id="fechaCita" [(ngModel)]="date_appointment" [ngModelOptions]="{standalone: true}" class="form-control-apple">
+            <!-- Al cambiar la fecha se ejecuta tu filtroDoctor() original -->
+            <input type="date" id="fechaCita" [(ngModel)]="date_appointment" [ngModelOptions]="{standalone: true}"
+              (change)="filtroDoctor()" class="form-control-apple" required>
           </div>
         </div>
 
-        <!-- Campo: Hora / Selector -->
-        <div class="apple-input-wrapper mb-3">
-          <label for="horaCita" class="apple-label">Horas disponibles *</label>
+        <!-- ⏱️ NUEVO CAMPO: SELECTOR DE RANGOS / HORAS MAESTRAS (Calca la segunda foto) -->
+        <div class="apple-input-wrapper mb-4 animate__animated animate__fadeIn">
+          <label for="rangoHora" class="apple-label">Hora General / Bloque *</label>
           <div class="input-group-apple">
             <i class="fa-regular fa-clock icon-left text-secondary"></i>
-            <select id="horaCita" class="form-select-apple" (change)="selecSegment($event)">
-              <option selected disabled>Seleccione una hora...</option>
-              <option *ngFor="let SEGMENT of segments" [value]="SEGMENT">
-                {{ SEGMENT.format_segment.format_hour_start }} a {{ SEGMENT.format_segment.format_hour_end }}
-              </option>
+            <!-- Seteamos 'this.hour' y forzamos a ejecutar filtroDoctor() al cambiar de bloque (ej: de 8am a 9am) -->
+            <select id="rangoHora" [(ngModel)]="hour" [ngModelOptions]="{standalone: true}" (change)="filtroDoctor()"
+              class="form-select-apple">
+              <option value="" selected>Todos los horarios del día</option>
+              <!-- Recorremos la lista 'hours' que ya descargas del listConfig() en tu ngOnInit -->
+              @for (h of hours; track h) {
+              <option [value]="h.id">{{ h.name }}</option>
+              }
             </select>
           </div>
         </div>
+
+        <!-- 3. LISTADO DE SUB-HORARIOS SELECCIONABLES (Tus tarjetas Apple de la primera foto) -->
+        <div class="apple-input-wrapper mb-3 animate__animated animate__fadeIn">
+          <label class="apple-label fw-bold mb-2 text-primary">3. Selecciona una Hora Disponible *</label>
+
+          <div class="apple-hours-list d-flex flex-column gap-2">
+            @for (SEGMENT of segments; track SEGMENT) {
+            @if (!SEGMENT.is_appointment) {
+            <label class="apple-radio-hour-card d-flex align-items-center justify-content-between p-3"
+              [class.selected-card]="selected_segment_hour?.id === SEGMENT.id">
+
+              <div class="d-flex align-items-center gap-3">
+                <input type="radio" name="apple-hour-selection" [checked]="selected_segment_hour?.id === SEGMENT.id"
+                  (click)="selecSegment(SEGMENT)" class="apple-native-radio">
+
+                <div>
+                  <span class="d-block fw-semibold text-dark h6 mb-0">
+                    {{ SEGMENT.format_segment?.format_hour_start || SEGMENT.hora_start }} a
+                    {{ SEGMENT.format_segment?.format_hour_end || SEGMENT.hora_fin }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="apple-check-indicator"><i class="fa-solid fa-circle-check"></i></div>
+            </label>
+            }
+            } @empty {
+            <div class="text-center py-4 bg-light rounded-3 text-muted small border border-dashed">
+              <i class="fa-solid fa-clock-rotate-left fs-4 mb-2 d-block text-secondary"></i>
+              No hay segmentos disponibles para este bloque. Seleccione otra hora general arriba.
+            </div>
+            }
+          </div>
+        </div>
+
 
         <!-- ACCIONES PASO 1 -->
         <div class="d-flex flex-column gap-2 mt-4">
@@ -73,7 +117,7 @@
       <!-- 👤 PASO 2: INFORMACIÓN DEL PACIENTE                                       -->
       <!-- ========================================================================= -->
       <div *ngIf="pasoActual === 2" class="animate__animated animate__fadeIn">
-        
+
         <p class="text-secondary small mb-3">Completa tus datos para confirmar tu espacio en la agenda médica.</p>
 
         <div class="row g-2">

@@ -1,0 +1,34 @@
+<!-- 🍏 HEADER COMPACTO ESTILO MOBILE / PWA -->
+<header class="header-compact shadow-sm animate__animated animate__fadeIn">
+  <div class="header-container d-flex justify-content-between align-items-center px-3 py-2 bg-white">
+    
+    <!-- Lado Izquierdo: Logos y Separador Corporativo -->
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/home" class="d-flex align-items-center">
+        <img src="assets/svg/logoklintic2.svg" alt="Klyntic" class="logo-svg" style="height: 34px;">
+      </a>
+      <!-- Plepa dinámica inyectando el color de marca que el doctor configuró en el CRM -->
+      <span class="logo-divider fw-bold" [style.color]="consultorioSelected?.color_primario || '#513081'">
+        Klyntic | Express
+      </span>
+    </div>
+
+    <!-- Centro: Spinner de carga discreto para no congelar toda la pantalla -->
+    @if (isLoading) {
+      <div class="spinner-mini animate__animated animate__fadeIn">
+        <div class="spinner-border text-purple" role="status" style="width: 1.2rem; height: 1.2rem; border-width: 0.15em;"></div>
+      </div>
+    }
+
+    <!-- Lado Derecho: Foto de Perfil Circular del Médico Dueño del Subdominio -->
+    @if (consultorioSelected && !isLoading) {
+      <a routerLink="/home" class="d-flex align-items-center animate__animated animate__scaleIn">
+        <img [src]="consultorioSelected?.img_logo || 'assets/img/default-doctor.png'" 
+             [alt]="consultorioSelected?.nombre"
+             class="doctor-avatar-mini border border-2 shadow-sm rounded-circle"
+             style="width: 40px; height: 40px; object-fit: cover;">
+      </a>
+    }
+
+  </div>
+</header>

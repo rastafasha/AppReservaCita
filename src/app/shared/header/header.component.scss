@@ -1,0 +1,34 @@
+// Header fijado en la parte superior estilo App Móvil Nativa
+.header-compact {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050; // Garantiza que flote por encima del grid de tarjetas de Apple
+  border-bottom: 1px solid #f1f3f5;
+  
+  .header-container {
+    height: 56px; // Altura estándar de barras de navegación en iOS y Android
+  }
+
+  .logo-divider {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  // Animación suave de escala al aparecer el avatar del doctor
+  .doctor-avatar-mini {
+    border-color: #f8f9fa !important;
+    transition: transform 0.2s ease;
+    
+    &:active {
+      transform: scale(0.92); // Efecto de clic táctil sutil
+    }
+  }
+}
+
+// Ajuste para que el contenedor Apple de abajo no se pegue al header fijo
+.apple-container {
+  padding-top: 1.5rem !important;
+}

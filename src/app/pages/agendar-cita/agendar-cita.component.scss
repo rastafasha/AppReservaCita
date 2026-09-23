@@ -155,3 +155,28 @@ $input-bg: #f2f2f7; // Gris claro para campos de texto de Apple
   .x-small { font-size: 0.75rem; }
   .tracking-wider { letter-spacing: 0.5px; }
 }
+
+// Estilizado para los selects de la interfaz Apple
+.form-select-apple {
+  width: 100%;
+  padding: 12px 16px 12px 42px; // Deja espacio para el icono de la izquierda
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  background-color: #ffffff;
+  border: 1px solid #e3e3e8;
+  border-radius: 12px;
+  appearance: none; // Remueve la flecha fea por defecto de Windows/Android
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #0071e3;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+  }
+}
+
