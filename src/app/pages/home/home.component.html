@@ -1,3 +1,4 @@
+<app-loading *ngIf="isLoading"></app-loading>
 <!-- 🍏 2. VISTA DE LA APLICACIÓN (Tu maquetación Apple con datos dinámicos) -->
 @if (!isLoading && consultorioSelected) {
   <app-header></app-header>
@@ -25,11 +26,13 @@
         
         <p class="doctor-specialty text-secondary fw-medium m-0 mb-1 small">
           <i class="fa-solid fa-stethoscope text-purple me-1"></i> 
-          {{ consultorioSelected?.speciality?.nombre || 'Médico Especialista' }}
+          {{ doctorSelected?.doctor?.speciality?.name || 'Médico Especialista' }}
         </p>
         
         <div class="d-flex align-items-center gap-1">
-          <span class="location-text text-muted"><i class="fa-solid fa-location-dot text-danger me-1"></i> {{ consultorioSelected?.ciudad || 'Caracas' }}</span>
+          <span class="location-text text-muted">
+            <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ consultorioSelected?.ciudad || 'Caracas' }}
+          </span>
         </div>
       </div>
 
@@ -73,9 +76,20 @@
           </div>
           <h2 class="h5 fw-bold mb-3">Ubicación</h2>
           <p class="fw-semibold text-dark mb-1">{{ consultorioSelected?.ciudad || 'Centro de Salud' }}</p>
-          <p class="text-secondary small mb-3">
-            {{ consultorioSelected?.address || 'Dirección de consulta médica no especificada.' }}
-          </p>
+          
+          <ul class="list-unstyled mb-0">
+            @for (locat of locations; track locat) {
+              <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
+                <span class="text-secondary fw-medium">{{ locat.name_consultorio }}</span>
+                <span class="fw-bold text-dark">{{ locat.address }}</span>
+              </li>
+            } @empty {
+              <!-- <p class="text-secondary small mb-3">
+              {{ consultorioSelected?.address || 'Dirección de consulta médica no especificada.' }}
+            </p> -->
+            }
+            
+          </ul>
           <div class="bg-light rounded-3 p-3 d-flex align-items-center gap-3">
             <i class="fa-regular fa-clock text-secondary fs-5"></i>
             <div>

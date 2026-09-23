@@ -7,8 +7,8 @@ export const environment = {
     url_media: 'https://res.cloudinary.com/dmv6aukai/image/upload/v1741275492/crmklyntic/uploads',
 
     backend_node:"http://localhost:3000/api",
-    // nombreSelected: 'joaqun-paez',
-    nombreSelected: 'klytic-generic',
+    nombreSelected: 'joaqun-paez',
+    // nombreSelected: 'klytic-generic',
     
     //conexion a node y manejo de notificaciones
     // backend_node:"https://back-klyntic-envios.onrender.com/api",

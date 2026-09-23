@@ -2,20 +2,26 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Usuario } from '../../models/usuario.model';
 import { AuthService } from '../../services/auth.service';
 import { AgendarCitaComponent } from '../agendar-cita/agendar-cita.component';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap, map } from 'rxjs'; // 👈 Asegúrate de importar switchMap y map
 import { Clinica } from '../../models/clinica.model';
 import { ClinicaService } from '../../services/clinica.service';
 import { HeaderComponent } from '../../shared/header/header.component';
 import { ImagenPipe } from '../../pipes/imagen-pipe.pipe';
 import { Title, Meta } from '@angular/platform-browser';
+import { DoctorService } from '../../services/doctor.service';
+import { LoadingComponent } from '../../shared/loading/loading.component';
+import { CommonModule } from '@angular/common';
+import { DoctorAddress } from '../../models/DoctorAddress.model';
 
 declare var bootstrap: any;
 @Component({
   selector: 'app-home',
   imports: [
+    CommonModule,
     AgendarCitaComponent,
     HeaderComponent,
-    ImagenPipe
+    ImagenPipe,
+    LoadingComponent,
 ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
@@ -28,107 +34,124 @@ export class HomeComponent {
   user!: any;
   isLoading = false;
   isVisible = false;
+  doctorSelected: any;
+  doctorId: any;
+  locations: any;
   
-  // Guardará la información del consultorio/clínica resuelta por el CRM
   consultorioSelected: any | null = null; 
   private consultorioSubscription!: Subscription;
 
-  // Inyecciones de dependencias con sintaxis inject()
   private authService = inject(AuthService);
   private clinicaService = inject(ClinicaService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private doctorService = inject(DoctorService);
 
   ngOnInit() {
     this.isLoading = true;
     this.user = this.authService.getLocalStorage();
-    this.cargarDatosConsultorioPorSubdominio();
+    this.cargarDatosHome(); // 👈 Cambiamos el nombre al método principal unificado
   }
 
-  private cargarDatosConsultorioPorSubdominio() {
+  private cargarDatosHome() {
     this.isLoading = true;
-
-    // 1. Extraemos el slug utilizando el método unificado del servicio
     const slugConsultorio = this.clinicaService.obtenerSlugDeUrl();
 
-    // 2. Consumimos el endpoint del CRM (Node.js/Mongo) con la estrategia de caché
-    this.consultorioSubscription = this.clinicaService.getClinicaBySlugCached(slugConsultorio).subscribe({
-      next: (consultorio: any) => {
-        this.consultorioSelected = consultorio;
+    // Enadenamos las peticiones de forma reactiva con RxJS
+    this.consultorioSubscription = this.clinicaService.getClinicaBySlugCached(slugConsultorio)
+      .pipe(
+        switchMap((consultorio: any) => {
+          this.consultorioSelected = consultorio;
+          this.doctorId = consultorio?.user_id;
+          this.getlocaciones();
+          // Si hay consultorio, disparamos la búsqueda del perfil del doctor pasándole el objeto consultorio
+          return this.doctorService.showDoctorProfile(this.doctorId).pipe(
+            map((perfilDoctor: any) => {
+              return { consultorio, perfilDoctor }; // Retornamos ambos objetos unificados
+            })
+          );
+          
+        })
+      )
+      .subscribe({
+        next: ({ consultorio, perfilDoctor }) => {
+          this.doctorSelected = perfilDoctor;
+          console.log(this.doctorSelected)
 
-        if (consultorio) {
-          // Asignamos el título dinámico en el navegador con el nombre del médico o clínica
-          this.titleService.setTitle(`Klyntic | ${consultorio.nombre}`);
+          if (consultorio) {
+            // 🎨 INTERPOLACIÓN Y CONTROL DE DISEÑO SAAS INTACTO
+            const estiloPrevio = document.getElementById('css-dinamico-consultorio');
+            if (estiloPrevio) estiloPrevio.remove();
 
-          // 🎨 INTERPOLACIÓN Y CONTROL DE DISEÑO SAAS INTACTO
-          // Si el doctor definió estilos CSS específicos en el CRM, los inyectamos en el DOM
-          const estiloPrevio = document.getElementById('css-dinamico-consultorio');
-          if (estiloPrevio) estiloPrevio.remove();
+            if (consultorio.css_personalizado) {
+              const estilo = document.createElement('style');
+              estilo.id = 'css-dinamico-consultorio'; 
+              estilo.innerHTML = consultorio.css_personalizado;
+              document.head.appendChild(estilo);
+            }
 
-          if (consultorio.css_personalizado) {
-            const estilo = document.createElement('style');
-            estilo.id = 'css-dinamico-consultorio'; 
-            estilo.innerHTML = consultorio.css_personalizado;
-            document.head.appendChild(estilo);
+            // 🔥 LLAMADA UNIFICADA: Enviamos ambos objetos a la función SEO
+            this.establecerSeoCardPremium(consultorio, perfilDoctor);
           }
-          this.establecerSeoCardPremium(consultorio);
-        }
 
-        this.isLoading = false;
-        console.log(`✅ Consultorio Médico cargado de forma dinámica: ${slugConsultorio}`);
-      },
-      error: (err) => {
-        console.error('❌ Error al obtener el consultorio por subdominio en el CRM:', err);
-        this.isLoading = false;
-      }
-    });
+          this.isLoading = false;
+          console.log(`✅ Datos de Home cargados con éxito para: ${slugConsultorio}`);
+        },
+        error: (err) => {
+          console.error('❌ Error en el flujo de carga del Home:', err);
+          this.isLoading = false;
+        }
+      });
   }
 
+  
+
   ngOnDestroy() {
-    // Desuscripción higiénica para evitar fugas de memoria (Memory Leaks)
     if (this.consultorioSubscription) {
       this.consultorioSubscription.unsubscribe();
     }
   }
 
+  getlocaciones(){
+    this.doctorService.getAddressesByDoctor(this.doctorId ).subscribe((resp:any)=>{
+      
+      this.locations = resp.addresses
+    })
+  }
+
   /**
-   * Configura las Metaetiquetas Open Graph (Facebook/Instagram/WhatsApp) y Twitter Cards
-   * basándose en la identidad única del médico dueño de la URL.
+   * Configura las Metaetiquetas recibiendo de forma independiente el consultorio y el perfil del doctor
    */
-  private establecerSeoCardPremium(medico: any) {
-    const nombreDoctor = medico.nombre || 'Especialista';
-    const especialidad = medico.speciality?.nombre || 'Médico Especialista';
-    const ciudad = medico.ciudad || 'Caracas';
+  private establecerSeoCardPremium(consultorio: any, perfilDoctor: any) {
+    // Tomamos propiedades específicas de cada objeto según corresponda
+    const nombreDoctor = perfilDoctor?.full_name || consultorio?.name ;
+    const especialidad = perfilDoctor?.doctor?.speciality?.name ;
+    const ciudad = consultorio?.ciudad;
     
-    // Título dinámico para la pestaña del navegador: "Dra. Belén Silvestri - Gastroenterólogo | Klyntic"
     const tituloCompleto = `${nombreDoctor} - ${especialidad} | Klyntic Express`;
     this.titleService.setTitle(tituloCompleto);
 
-    // Descripción comercial atractiva para el snippet de Google y WhatsApp
     const descripcionComercial = `Solicita tu cita médica en línea con el especialista ${nombreDoctor} (${especialidad}) en ${ciudad}. Gestión segura a través de Klyntic Express.`;
 
-    // 🍏 Inyección Masiva de Metaetiquetas en el HTML en caliente
+    // Limpiamos tags antiguos para evitar duplicados si cambia de ruta
+    this.metaService.removeTag("name='description'");
+
     this.metaService.addTags([
       { name: 'description', content: descripcionComercial },
-      { name: 'robots', content: 'index, follow' }, // Le dice a Google que sí indexe este subdominio
+      { name: 'robots', content: 'index, follow' }, 
 
-      // 🌐 METAETIQUETAS OPEN GRAPH (Para que WhatsApp e Instagram pinten una tarjeta hermosa)
       { property: 'og:title', content: tituloCompleto },
       { property: 'og:description', content: descripcionComercial },
       { property: 'og:type', content: 'profile' },
       { property: 'og:url', content: window.location.href },
-      // Foto de perfil real del médico guardada en MongoDB (Aparecerá la miniatura en WhatsApp)
-      { property: 'og:image', content: medico.img_logo || 'https://klyntic.com/assets/images/logoklyntic.png' },
+      // Prioriza el logo del perfil o el de la clínica por defecto
+      { property: 'og:image', content: perfilDoctor?.img_logo || consultorio?.img_logo || 'https://klyntic.com' },
       { property: 'og:site_name', content: 'Klyntic Express' },
 
-      // 🐦 TWITTER CARDS
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: tituloCompleto },
       { name: 'twitter:description', content: descripcionComercial },
-      { name: 'twitter:image', content: medico.img_logo || 'https://klyntic.com/assets/images/logoklyntic.png' }
+      { name: 'twitter:image', content: perfilDoctor?.img_logo || consultorio?.img_logo || 'https://klyntic.com' }
     ]);
   }
-
-
 }
-

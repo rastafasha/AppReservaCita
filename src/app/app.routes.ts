@@ -17,10 +17,10 @@ export const routes: Routes = [
 //   },
 
 //   // 🛡️ CORTAFUEGOS: Cualquier otra ruta rota o inexistente la mandamos también al Home
-//   { 
-//     path: '**', 
-//     redirectTo: 'home' 
-//   }
+  // { 
+  //   path: '**', 
+  //   redirectTo: 'home' 
+  // },
 
   { path: '', redirectTo: '/', pathMatch: 'full' },
   { path: '**', component: HomeComponent },

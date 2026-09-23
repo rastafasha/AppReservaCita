@@ -46,18 +46,4 @@ export class DoctorService {
     return this.http.get<any>(url, { headers: this.headers });
   }
 
-  storeDoctorAddress(data: DoctorAddress): Observable<any> {
-    const url = `${base_url}/doctor-addresses/store`;
-    return this.http.post<any>(url, data, { headers: this.headers });
-  }
-
-  updateDoctorAddress(addressId: number, data: Partial<DoctorAddress>): Observable<any> {
-    const url = `${base_url}/doctor-addresses/update/${addressId}`;
-    return this.http.post<any>(url, data, { headers: this.headers });
-  }
-
-  deleteDoctorAddress(addressId: number): Observable<any> {
-    const url = `${base_url}/doctor-addresses/destroy/${addressId}`;
-    return this.http.delete<any>(url, { headers: this.headers });
-  }
 }

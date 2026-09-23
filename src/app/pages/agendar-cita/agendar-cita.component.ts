@@ -119,7 +119,6 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
 
     this.doctorService.showDoctorProfile(this.DOCTOR_SELECTED).subscribe({
       next: (resp: any) => {
-        console.log(resp)
         this.DOCTOR = resp.doctor;
         this.cargandoAgenda = false;
         console.log(`🎉 Agenda del Core vinculada con éxito. ${this.scheduleSelecteds.length} segmentos horarios listos.`);
