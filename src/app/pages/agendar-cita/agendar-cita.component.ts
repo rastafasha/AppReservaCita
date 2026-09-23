@@ -185,7 +185,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
         } else {
           todosLosSegmentos = resp.segments || [];
         }
-
+        this.loading = false;
         // 🔥 EL FILTRO DE AGRUPACIÓN IDÉNTICO AL OTRO COMPONENTE:
         // Si el paciente seleccionó una hora en el select de arriba (this.hour), 
         // filtramos el arreglo en caliente para dejar SOLO los segmentos que pertenezcan a ese bloque.
@@ -201,13 +201,13 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
         } else {
           this.segments = todosLosSegmentos;
         }
-
+        
         // Si el filtro por grupo dejó la lista vacía, avisamos de forma sutil
         if (this.segments.length === 0 && this.hour) {
           this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
         }
       }
-      this.loading = false;
+      
     });
   }
 
