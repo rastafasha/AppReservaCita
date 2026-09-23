@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ClinicaService } from './services/clinica.service'; // Ajusta la ruta a tu proyecto
+import { SecurityService } from './services/security.service'; 
 
 
 @Component({
@@ -17,8 +18,10 @@ export class AppComponent {
   public mensajeError = '';
 
   private clinicaService = inject(ClinicaService);
+  private securityService = inject(SecurityService);
 
   ngOnInit(): void {
+    this.securityService.disableDeveloperTools(); // seguridad evitando acceder a la consola
     this.validarSubdominioEnProduccion();
   }
 
