@@ -50,58 +50,17 @@ export class AppointmentService {
     const URL = `${url_servicios}/specialities/show/${speciality}`;
     return this.http.get(URL);
   }
+  
+  lisFiterByDoctor(data: any, doctor_id: number) {
+    const URL = `${url_servicios}/appointments/filterbydoctor/${doctor_id}`;
+    return this.http.post(URL, data);
+  }
 
   // =========================================================================
   // 🔒 ENDPOINTS PRIVADOS: EXCLUSIVOS PARA PANEL DE MÉDICOS (REQUIEREN TOKEN)
   // =========================================================================
   
-  listAppointementAtendidas() {
-    const URL = `${url_servicios}/appointments/atendidas`;
-    return this.http.get(URL, { headers: this.headers });
-  }
-
-  lisFiter(data: any) {
-    const URL = `${url_servicios}/appointments/filter`;
-    return this.http.post(URL, data, { headers: this.headers });
-  }
-
-  getPatient(n_doc: string = '') {
-    const URL = `${url_servicios}/appointments/patient?n_doc=${n_doc}`;
-    return this.http.get(URL, { headers: this.headers });
-  }
-
-  storeAppointment(data: any) {
-    const URL = `${url_servicios}/appointments/store`;
-    return this.http.post(URL, data, { headers: this.headers });
-  }
   
-  showAppointment(appointment_id: any) {
-    const URL = `${url_servicios}/appointments/show/${appointment_id}`;
-    return this.http.get(URL, { headers: this.headers });
-  }
+ 
 
-  lisFiterByDoctor(data: any, doctor_id: number) {
-    const URL = `${url_servicios}/appointments/filterbydoctor/${doctor_id}`;
-    return this.http.post(URL, data, { headers: this.headers });
-  }
-
-  listAppointmentDocts(doctor_id: any, page = 1, search = '', search_patient = '', date = '') {
-    let LINK = "";
-    if (search) LINK += `&search=${search}`;
-    if (search_patient) LINK += `&search_patient=${search_patient}`;
-    if (date) LINK += `&date=${date}`;
-    
-    const URL = `${url_servicios}/appointments/byDoctor/${doctor_id}/?page=${page}${LINK}`;
-    return this.http.get(URL, { headers: this.headers });
-  }
-  
-  showCitamedica(appointment_id: any) {
-    const URL = `${url_servicios}/appointment-atention/show/${appointment_id}`;
-    return this.http.get(URL, { headers: this.headers });
-  }
-
-  getLaboratoryByAppointment(appointment_id: any) {
-    const URL = `${url_servicios}/laboratory/showByAppointments/${appointment_id}`;
-    return this.http.get(URL, { headers: this.headers });
-  }
 }
