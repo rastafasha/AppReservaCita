@@ -157,7 +157,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     this.selected_segment_hour = SEGMENT;
   }
 
-    filtroDoctor() {
+  filtroDoctor() {
     const data = {
       date_appointment: this.date_appointment,
       hour: this.hour,
@@ -165,9 +165,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     }
 
     console.log(`📡 [Filtro Directo] Consultando con ID: ${this.DOCTOR_SELECTED}`);
-    
-    // 1. Encendemos el loading inmediatamente antes de disparar la petición HTTP
-    this.loading = true; 
+    this.loading = true;
 
     this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe({
       next: (resp: any) => {
@@ -189,38 +187,37 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
           } else {
             todosLosSegmentos = resp.segments || [];
           }
-          
-          // 🔥 EL FILTRO DE AGRUPACIÓN IDÉNTICO AL OTRO COMPONENTE:
+
+          // 🔥 EL NUEVO COMPORTAMIENTO SECUENCIAL / NEUTRO:
           if (this.hour) {
+            // Si el usuario ya eligió una hora (ej: "08", "09"), filtramos y mostramos sus bloques
             this.segments = todosLosSegmentos.filter((seg: any) => {
               return seg.hour_id == this.hour ||
                 seg.doctor_schedule_hour_id == this.hour ||
                 (seg.format_segment && seg.format_segment.hour_id == this.hour) ||
                 (seg.format_segment && seg.format_segment.hour == this.hour);
             });
-            console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora ID/Texto: ${this.hour}. Total: ${this.segments.length}`);
+            console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora: ${this.hour}. Total: ${this.segments.length}`);
+
+            // Si eligió una hora pero ese bloque específico está full o vacío:
+            if (this.segments.length === 0) {
+              this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
+            }
           } else {
-            this.segments = todosLosSegmentos;
-          }
-          
-          // Si el filtro por grupo dejó la lista vacía, avisamos de forma sutil
-          if (this.segments.length === 0 && this.hour) {
-            this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
+            // 🚀 MODIFICACIÓN AQUÍ: Si "this.hour" está vacío (Seleccione...), 
+            // dejamos la lista de segmentos limpia en espera de que elija una.
+            this.segments = [];
+            console.log('⚖️ [Estado Neutro] Esperando que el usuario elija una hora en el selector.');
           }
         }
 
-        // 2. Apagamos el loading AQUÍ, justamente después de que todas las variables 
-        // visuales (this.segments y this.DOCTOR) ya cambiaron y terminaron de filtrarse.
         this.loading = false;
       },
       error: (err) => {
         console.error('❌ Error en la petición HTTP:', err);
-        this.toastr.error('Ocurrió un error al consultar los turnos. Intente de nuevo.');
+        this.toastr.error('Ocurrió un error al consultar los turnos.');
         this.segments = [];
-        
-        // 3. 🛡️ Crucial: Apagamos el loading también en caso de falla de red/servidor 
-        // para evitar que la interfaz se quede congelada para siempre.
-        this.loading = false; 
+        this.loading = false;
       }
     });
   }
@@ -287,7 +284,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     );
 
     // 📞 CONEXIÓN CON EL TELÉFONO DE MONGO: Le enviamos el mensaje al WhatsApp del médico dueño del subdominio
-    const numeroDestino = this.consultorio?.phone ;
+    const numeroDestino = this.consultorio?.phone;
 
     // Corregida la interpolación de la URL de WhatsApp wa.me/
     // window.open(`https://wa.me{numeroDestino}?text=${mensaje}`, '_blank');
@@ -295,7 +292,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
 
-    
+
   }
 
 
@@ -303,10 +300,10 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     // 🚀 1. Forzamos el reset de los inputs de búsqueda
     this.date_appointment = null;
     this.hour = null;
-    
+
     // 🛡️ 2. FIX: Vaciamos el arreglo de segmentos con [] para limpiar el *ngFor del HTML instantáneamente
-    this.segments = []; 
-    
+    this.segments = [];
+
     // 3. Eliminamos cualquier selección activa del botón/tarjeta de hora
     this.selected_segment_hour = null;
 
@@ -320,18 +317,18 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
 
     // 5. Limpiamos los textos de errores previos si los había
     this.text_validation = '';
-    
+
     // 6. Reseteamos el formulario reactivo del Paso 2
     if (this.expressPatientForm) {
       this.expressPatientForm.reset();
-      
+
       // Si usas FormControls específicos para la cita dentro del form, los forzamos aquí:
       // this.expressPatientForm.get('doctor_address_id')?.setValue(null);
     }
-    
+
     // 7. Regresamos el asistente al primer paso obligatoriamente
     this.pasoActual = 1;
-    
+
     console.log('🧹 [Reset Completo] Filtros, segmentos, formularios y pasos limpiados con éxito.');
   }
 
