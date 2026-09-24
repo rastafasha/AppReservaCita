@@ -271,29 +271,47 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     });
   }
 
-  private enviarNotificacionWhatsApp(data: any) {
-    const mensaje = encodeURIComponent(
-      `✨ *SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
-      `👋 Hola, un saludo. Acabo de solicitar una cita médica desde el perfil web:\n\n` +
-      `👤 *Paciente:* ${data.name} ${data.surname}\n` +
-      `🪪 *Cédula:* ${data.n_doc}\n` +
-      `📞 *WhatsApp:* ${data.phone}\n\n` +
-      `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
-      `⏰ *Estatus:* Pendiente por confirmación de disponibilidad\n\n` +
-      `🚀 _Quedo atento a su respuesta para agendar formalmente._`
-    );
+ private enviarNotificacionWhatsApp(data: any) {
+  // 1. Crear el String del mensaje limpio (SIN encodeURIComponent aquí)
+  const textoPlano = 
+    `✨ *SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
+    `👋 Hola, un saludo. Acabo de solicitar una cita médica desde el perfil web:\n\n` +
+    `👤 *Paciente:* ${data.name} ${data.surname}\n` +
+    `🪪 *Cédula:* ${data.n_doc}\n` +
+    `📞 *WhatsApp:* ${data.phone}\n\n` +
+    `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
+    `⏰ *Estatus:* Pendiente por confirmación de disponibilidad\n\n` +
+    `🚀 _Quedo atento a su respuesta para agendar formalmente._`;
 
-    // 📞 CONEXIÓN CON EL TELÉFONO DE MONGO: Le enviamos el mensaje al WhatsApp del médico dueño del subdominio
-    const numeroDestino = this.consultorio?.phone;
+  // 2. 🛡️ Sanitizar el número de teléfono:
+  // Eliminamos cualquier '+', espacio o guion que pueda venir de la BD para que wa.me no falle
+  let numeroDestino = this.consultorio?.phone ? String(this.consultorio.phone).replace(/[^\d]/g, '') : '';
 
-    // Corregida la interpolación de la URL de WhatsApp wa.me/
-    // window.open(`https://wa.me{numeroDestino}?text=${mensaje}`, '_blank');
-
-    const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
-
-
+  if (!numeroDestino) {
+    console.error('❌ No se encontró un número de teléfono válido para el consultorio.');
+    return;
   }
+
+  // 3. Un solo encode completo para la URL
+  const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(textoPlano)}`;
+  
+  console.log('🔗 URL de WhatsApp generada:', url);
+
+  // 4. 🔥 TRUCO DE COMPATIBILIDAD MÓVIL (Instagram/Facebook In-App Browser)
+  // window.open con '_blank' a veces es bloqueado si no viene de un click directo del usuario.
+  // Creamos un elemento invisible temporal para forzar la salida del navegador interno de Instagram.
+  const link = document.createElement('a');
+  link.href = url;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer'; // Evita bloqueos de seguridad en iOS/Android
+  document.body.appendChild(link);
+  
+  // Disparamos el click de forma nativa
+  link.click();
+  
+  // Limpiamos el DOM
+  document.body.removeChild(link);
+}
 
 
   cancel() {
