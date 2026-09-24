@@ -157,7 +157,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     this.selected_segment_hour = SEGMENT;
   }
 
-  filtroDoctor() {
+    filtroDoctor() {
     const data = {
       date_appointment: this.date_appointment,
       hour: this.hour,
@@ -165,51 +165,66 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     }
 
     console.log(`📡 [Filtro Directo] Consultando con ID: ${this.DOCTOR_SELECTED}`);
-    this.loading = true;
-    this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe((resp: any) => {
-      console.log('📦 Respuesta cruda de Laravel:', resp);
-      this.loading = false;
-      if (resp.message === 403 || !resp.doctor || resp.doctor.length === 0) {
-        this.text_validation = resp.message_text;
-        this.toastr.warning(this.text_validation);
-        this.segments = [];
-      } else {
-        this.DOCTOR = resp.doctor;
+    
+    // 1. Encendemos el loading inmediatamente antes de disparar la petición HTTP
+    this.loading = true; 
 
-        // Extraemos todos los segmentos que devolvió el servidor para el día
-        let todosLosSegmentos = [];
-        if (resp.doctor && Array.isArray(resp.doctor.segments)) {
-          todosLosSegmentos = resp.doctor.segments;
-        } else if (Array.isArray(resp.doctor)) {
-          todosLosSegmentos = resp.doctor;
+    this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe({
+      next: (resp: any) => {
+        console.log('📦 Respuesta cruda de Laravel:', resp);
+
+        if (resp.message === 403 || !resp.doctor || resp.doctor.length === 0) {
+          this.text_validation = resp.message_text;
+          this.toastr.warning(this.text_validation);
+          this.segments = [];
         } else {
-          todosLosSegmentos = resp.segments || [];
+          this.DOCTOR = resp.doctor;
+
+          // Extraemos todos los segmentos que devolvió el servidor para el día
+          let todosLosSegmentos = [];
+          if (resp.doctor && Array.isArray(resp.doctor.segments)) {
+            todosLosSegmentos = resp.doctor.segments;
+          } else if (Array.isArray(resp.doctor)) {
+            todosLosSegmentos = resp.doctor;
+          } else {
+            todosLosSegmentos = resp.segments || [];
+          }
+          
+          // 🔥 EL FILTRO DE AGRUPACIÓN IDÉNTICO AL OTRO COMPONENTE:
+          if (this.hour) {
+            this.segments = todosLosSegmentos.filter((seg: any) => {
+              return seg.hour_id == this.hour ||
+                seg.doctor_schedule_hour_id == this.hour ||
+                (seg.format_segment && seg.format_segment.hour_id == this.hour) ||
+                (seg.format_segment && seg.format_segment.hour == this.hour);
+            });
+            console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora ID/Texto: ${this.hour}. Total: ${this.segments.length}`);
+          } else {
+            this.segments = todosLosSegmentos;
+          }
+          
+          // Si el filtro por grupo dejó la lista vacía, avisamos de forma sutil
+          if (this.segments.length === 0 && this.hour) {
+            this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
+          }
         }
+
+        // 2. Apagamos el loading AQUÍ, justamente después de que todas las variables 
+        // visuales (this.segments y this.DOCTOR) ya cambiaron y terminaron de filtrarse.
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('❌ Error en la petición HTTP:', err);
+        this.toastr.error('Ocurrió un error al consultar los turnos. Intente de nuevo.');
+        this.segments = [];
         
-        // 🔥 EL FILTRO DE AGRUPACIÓN IDÉNTICO AL OTRO COMPONENTE:
-        // Si el paciente seleccionó una hora en el select de arriba (this.hour), 
-        // filtramos el arreglo en caliente para dejar SOLO los segmentos que pertenezcan a ese bloque.
-        // Mapeamos contra 'hour_id' o 'doctor_schedule_hour_id' según tu Mongoose/Postgres
-        if (this.hour) {
-          this.segments = todosLosSegmentos.filter((seg: any) => {
-            return seg.hour_id == this.hour ||
-              seg.doctor_schedule_hour_id == this.hour ||
-              (seg.format_segment && seg.format_segment.hour_id == this.hour) ||
-              (seg.format_segment && seg.format_segment.hour == this.hour); // 👈 ¡Esta línea arregla el problema!
-          });
-          console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora ID/Texto: ${this.hour}. Total: ${this.segments.length}`);
-        } else {
-          this.segments = todosLosSegmentos;
-        }
-        
-        // Si el filtro por grupo dejó la lista vacía, avisamos de forma sutil
-        if (this.segments.length === 0 && this.hour) {
-          this.toastr.info('No hay turnos libres específicos para el rango horario seleccionado.');
-        }
+        // 3. 🛡️ Crucial: Apagamos el loading también en caso de falla de red/servidor 
+        // para evitar que la interfaz se quede congelada para siempre.
+        this.loading = false; 
       }
-      
     });
   }
+
 
 
 
@@ -285,23 +300,39 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
 
 
   cancel() {
-    // 🚀 ASIGNAMOS NULL PARA FORZAR EL RESET VISUAL DEL INPUT FECHA
+    // 🚀 1. Forzamos el reset de los inputs de búsqueda
     this.date_appointment = null;
     this.hour = null;
+    
+    // 🛡️ 2. FIX: Vaciamos el arreglo de segmentos con [] para limpiar el *ngFor del HTML instantáneamente
+    this.segments = []; 
+    
+    // 3. Eliminamos cualquier selección activa del botón/tarjeta de hora
+    this.selected_segment_hour = null;
 
-    if (this.selected_segment_hour) {
-      this.selected_segment_hour = null;
+    // 4. Limpiamos los segmentos que hayan quedado guardados dentro del objeto del doctor
+    if (this.DOCTOR) {
+      this.DOCTOR.segments = [];
+      // Opcional: Si quieres deseleccionar por completo al doctor del flujo:
+      // this.DOCTOR = null; 
     }
+    this.DOCTOR_SELECTED = null; // Resetea el ID del médico seleccionado
 
-    // Limpiamos los textos de errores previos si los había
+    // 5. Limpiamos los textos de errores previos si los había
     this.text_validation = '';
-
-    // Reseteamos el formulario reactivo del Paso 2
+    
+    // 6. Reseteamos el formulario reactivo del Paso 2
     if (this.expressPatientForm) {
       this.expressPatientForm.reset();
+      
+      // Si usas FormControls específicos para la cita dentro del form, los forzamos aquí:
+      // this.expressPatientForm.get('doctor_address_id')?.setValue(null);
     }
-    // Regresamos el asistente al primer paso obligatoriamente
+    
+    // 7. Regresamos el asistente al primer paso obligatoriamente
     this.pasoActual = 1;
+    
+    console.log('🧹 [Reset Completo] Filtros, segmentos, formularios y pasos limpiados con éxito.');
   }
 
 
