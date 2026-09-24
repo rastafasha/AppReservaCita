@@ -32,7 +32,7 @@ export class AppComponent {
     this.clinicaService.getClinicaBySlugCached().subscribe({
       next: (consultorio) => {
         if (consultorio) {
-          console.log('🎉 [Klyntic Multi-Tenant] Datos cargados con éxito para:', consultorio.nombre);
+          console.log('🎉 [Klyntic Multi-Tenant] Datos cargados con éxito para:', consultorio.name);
           this.cargandoTenant = false;
         } else {
           this.errorTenant = true;

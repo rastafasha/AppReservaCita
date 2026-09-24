@@ -37,6 +37,7 @@ export class HomeComponent {
   doctorSelected: any;
   doctorId: any;
   locations: any;
+  paymentMetods:any;
   
   consultorioSelected: any | null = null; 
   private consultorioSubscription!: Subscription;
@@ -80,6 +81,7 @@ export class HomeComponent {
           if (!this.doctorId || isNaN(this.doctorId)) {
             throw new Error(`El consultorio no tiene un user_id válido asignado en el CRM: ${rawId}`);
           }
+          this.getTiposPago();
 
           // 3. 🌐 Ejecutamos las llamadas asíncronas con el ID numérico garantizado
           return this.doctorService.showDoctorProfile(this.doctorId).pipe(
@@ -95,7 +97,10 @@ export class HomeComponent {
               );
             })
           );
+         
+          
         })
+        
       )
       .subscribe({
         next: ({ consultorio, perfilDoctor, direcciones }) => {
@@ -124,6 +129,12 @@ export class HomeComponent {
           this.isLoading = false;
         }
       });
+  }
+
+  getTiposPago(){
+    this.doctorService.getPaymentMetodhByDoctor(this.doctorId).subscribe((resp:any)=>{
+      this.paymentMetods = resp.tiposdepagos;
+    })
   }
 
 

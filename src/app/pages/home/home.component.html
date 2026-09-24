@@ -65,9 +65,20 @@
             <li class="d-flex justify-content-between align-items-center pt-2.5">
               <span class="text-secondary fw-medium">Monedas / Métodos</span>
               <span class="badge bg-light text-dark border fw-semibold">
-                {{ consultorioSelected?.moneda || 'USD' }} 
-                {{ consultorioSelected?.acepta_usd_internacional ? '/ Zelle' : '' }}
+                {{ doctorSelected?.doctor?.moneda || 'USD' }}
               </span>
+            </li>
+            <li class="d-flex justify-content-between align-items-center pt-2.5">
+             <div class="d-flex flex-wrap gap-2">
+            @for (payment of paymentMetods; track payment) {
+              <span class="apple-pill">
+                <i class="fa-solid fa-check text-primary me-1"></i> 
+                {{ payment.tipo }} 
+              </span>
+            } @empty {
+              <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
+            }
+          </div>
             </li>
           </ul>
         </div>
@@ -116,7 +127,7 @@
             @for (servicio of consultorioSelected?.Servicios_procedimientosList; track servicio) {
               <span class="apple-pill">
                 <i class="fa-solid fa-check text-primary me-1"></i> 
-                {{ servicio.descripcion }} <strong class="ms-1" style="color: #513081;">({{ servicio.precio }})</strong>
+                {{ servicio.descripcion }} <strong class="ms-1" style="color: #513081;">{{doctorSelected?.doctor?.moneda}} ({{ servicio.precio }})</strong>
               </span>
             } @empty {
               <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
@@ -141,7 +152,7 @@
                     <i class="fa-solid fa-shield-virus me-2 text-warning"></i> {{ vacuna.descripcion }}
                   </span>
                   <span class="badge bg-success-subtle text-success rounded-pill fw-semibold x-small">
-                    {{ vacuna.precio }}
+                    {{doctorSelected?.doctor?.moneda}} {{ vacuna.precio }}
                   </span>
                 </div>
               }

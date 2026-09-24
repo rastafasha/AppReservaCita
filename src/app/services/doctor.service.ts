@@ -45,5 +45,9 @@ export class DoctorService {
     const url = `${base_url}/doctor-addresses/doctor/${doctorId}`;
     return this.http.get<any>(url);
   }
+  getPaymentMetodhByDoctor(doctorId: number): Observable<any> {
+    const url = `${base_url}/paymentmethods/bydoctor/${doctorId}`;
+    return this.http.get<any>(url);
+  }
 
 }
