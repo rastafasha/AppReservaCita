@@ -298,7 +298,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     }
 
     // 1. Armamos la URL limpia con un solo encode
-    this.urlWhatsAppFinal = `https://wa.me${numeroDestino}?text=${encodeURIComponent(textoPlano)}`;
+    this.urlWhatsAppFinal = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(textoPlano)}`;
 
     // 2. 🔥 Cambiamos la propiedad a true para que el HTML alterne los botones instantáneamente
     this.citaProcesadaExito = true;
