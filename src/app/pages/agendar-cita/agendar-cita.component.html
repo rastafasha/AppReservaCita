@@ -166,12 +166,30 @@
 
         <!-- ACCIONES PASO 2 -->
         <div class="d-flex flex-column gap-2 mt-4">
-          <button type="button" (click)="saveExpress()" [disabled]="cargando" class="btn btn-apple-action-primary py-3">
+          
+          <!-- 1. BOTÓN POR DEFECTO: Se muestra solo si la cita NO ha sido procesada con éxito -->
+          <button *ngIf="!citaProcesadaExito" type="button" (click)="saveExpress()" [disabled]="cargando" class="btn btn-apple-action-primary py-3">
             <span *ngIf="!cargando"><i class="fa-solid fa-circle-check me-2"></i> Confirmar y Reservar</span>
             <span *ngIf="cargando"><i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando solicitud...</span>
           </button>
-          <button type="button" (click)="irAlPaso(1)" class="btn btn-apple-action-secondary py-3 text-secondary">
+
+          <!-- 2. 🔥 BOTÓN EXCLUSIVO PARA INSTAGRAM/MÓVIL: Aparece de inmediato tras el guardado exitoso -->
+          <a *ngIf="citaProcesadaExito" 
+             [href]="urlWhatsAppFinal" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="btn py-3 d-flex align-items-center justify-content-center shadow-sm"
+             style="background-color: #25D366; border-color: #25D366; color: white; font-weight: bold; border-radius: 12px; text-decoration: none;">
+            <i class="fa-brands fa-whatsapp fa-xl me-2"></i> Enviar a WhatsApp del Médico
+          </a>
+
+          <!-- BOTÓN DE RETORNO: Se oculta si ya se procesó con éxito para forzar el flujo final -->
+          <button *ngIf="!citaProcesadaExito" type="button" (click)="irAlPaso(1)" class="btn btn-apple-action-secondary py-3 text-secondary">
             <i class="fa-solid fa-chevron-left me-2"></i> Volver al paso anterior
+          </button>
+
+          <button *ngIf="citaProcesadaExito" type="button" (click)="cancel()" class="btn btn-apple-action-secondary py-3 text-danger">
+            <i class="fa-solid fa-rotate-left me-2"></i> Iniciar nueva reserva
           </button>
         </div>
       </div>

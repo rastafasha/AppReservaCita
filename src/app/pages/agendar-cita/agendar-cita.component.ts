@@ -64,6 +64,9 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
   public pasoActual: number = 1;
   public expressPatientForm!: FormGroup;
 
+  public citaProcesadaExito: boolean = false;
+  public urlWhatsAppFinal: string = '';
+
 
   constructor(
     public appointmentService: AppointmentService,
@@ -261,7 +264,12 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
       next: (resp: any) => {
         this.toastr.success('¡Solicitud enviada a la central con éxito!');
         this.cargando = false;
-        this.cerrarOffcanvas();
+
+        // ❌ REMOVIDO: Comentamos o eliminamos esta línea para que el panel se quede abierto 
+        // y el paciente pueda ver el botón verde de redirección nativa.
+        // this.cerrarOffcanvas(); 
+
+        // 🚀 EJECUTAMOS: Esto preparará la URL y activará el botón en tu HTML inmediatamente
         this.enviarNotificacionWhatsApp(dataExpress);
       },
       error: (err) => {
@@ -271,53 +279,38 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
     });
   }
 
- private enviarNotificacionWhatsApp(data: any) {
-  // 1. Crear el String del mensaje limpio (SIN encodeURIComponent aquí)
-  const textoPlano = 
-    `✨ *SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
-    `👋 Hola, un saludo. Acabo de solicitar una cita médica desde el perfil web:\n\n` +
-    `👤 *Paciente:* ${data.name} ${data.surname}\n` +
-    `🪪 *Cédula:* ${data.n_doc}\n` +
-    `📞 *WhatsApp:* ${data.phone}\n\n` +
-    `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
-    `⏰ *Estatus:* Pendiente por confirmación de disponibilidad\n\n` +
-    `🚀 _Quedo atento a su respuesta para agendar formalmente._`;
+  private enviarNotificacionWhatsApp(data: any) {
+    const textoPlano =
+      `✨ *SOLICITUD DE CITA - KLYNTIC EXPRESS* ✨\n\n` +
+      `👋 Hola, un saludo. Acabo de solicitar una cita médica desde el perfil web:\n\n` +
+      `👤 *Paciente:* ${data.name} ${data.surname}\n` +
+      `🪪 *Cédula:* ${data.n_doc}\n` +
+      `📞 *WhatsApp:* ${data.phone}\n\n` +
+      `🗓️ *Fecha Solicitada:* ${data.date_appointment}\n` +
+      `⏰ *Estatus:* Pendiente por confirmación de disponibilidad\n\n` +
+      `🚀 _Quedo atento a su respuesta para agendar formalmente._`;
 
-  // 2. 🛡️ Sanitizar el número de teléfono:
-  // Eliminamos cualquier '+', espacio o guion que pueda venir de la BD para que wa.me no falle
-  let numeroDestino = this.consultorio?.phone ? String(this.consultorio.phone).replace(/[^\d]/g, '') : '';
+    let numeroDestino = this.consultorio?.phone ? String(this.consultorio.phone).replace(/[^\d]/g, '') : '';
 
-  if (!numeroDestino) {
-    console.error('❌ No se encontró un número de teléfono válido para el consultorio.');
-    return;
+    if (!numeroDestino) {
+      console.error('❌ No se encontró número de teléfono en el consultorio.');
+      return;
+    }
+
+    // 1. Armamos la URL limpia con un solo encode
+    this.urlWhatsAppFinal = `https://wa.me{numeroDestino}?text=${encodeURIComponent(textoPlano)}`;
+
+    // 2. 🔥 Cambiamos la propiedad a true para que el HTML alterne los botones instantáneamente
+    this.citaProcesadaExito = true;
   }
-
-  // 3. Un solo encode completo para la URL
-  const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(textoPlano)}`;
-  
-  console.log('🔗 URL de WhatsApp generada:', url);
-
-  // 4. 🔥 TRUCO DE COMPATIBILIDAD MÓVIL (Instagram/Facebook In-App Browser)
-  // window.open con '_blank' a veces es bloqueado si no viene de un click directo del usuario.
-  // Creamos un elemento invisible temporal para forzar la salida del navegador interno de Instagram.
-  const link = document.createElement('a');
-  link.href = url;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer'; // Evita bloqueos de seguridad en iOS/Android
-  document.body.appendChild(link);
-  
-  // Disparamos el click de forma nativa
-  link.click();
-  
-  // Limpiamos el DOM
-  document.body.removeChild(link);
-}
 
 
   cancel() {
     // 🚀 1. Forzamos el reset de los inputs de búsqueda
     this.date_appointment = null;
     this.hour = null;
+    this.citaProcesadaExito = false;
+    this.urlWhatsAppFinal = '';
 
     // 🛡️ 2. FIX: Vaciamos el arreglo de segmentos con [] para limpiar el *ngFor del HTML instantáneamente
     this.segments = [];
