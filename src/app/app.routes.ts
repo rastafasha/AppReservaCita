@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
+import { SelectorAppleComponent } from './pages/selector-apple/selector-apple.component';
+import { subdomainGuard } from './guards/subdomain.guard';
 
 export const routes: Routes = [
    // 🚀 LA CORRECCIÓN CRÍTICA PARA EL LINK DE INSTAGRAM:
@@ -16,12 +18,13 @@ export const routes: Routes = [
 //     component: HomeComponent 
 //   },
 
-//   // 🛡️ CORTAFUEGOS: Cualquier otra ruta rota o inexistente la mandamos también al Home
-  // { 
-  //   path: '**', 
-  //   redirectTo: 'home' 
-  // },
-
+//   // 🛡️ solo local
+  { 
+    path: '**', 
+    redirectTo: 'home' 
+  },
+  //   // 🛡️ solo local
+  { path: '', component: SelectorAppleComponent, canActivate: [subdomainGuard] },
   { path: '', redirectTo: '/', pathMatch: 'full' },
   { path: '**', component: HomeComponent },
     

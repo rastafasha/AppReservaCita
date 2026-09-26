@@ -1,187 +1,201 @@
 <app-loading *ngIf="isLoading" ></app-loading>
+
 <!-- 🍏 2. VISTA DE LA APLICACIÓN (Tu maquetación Apple con datos dinámicos) -->
 @if (!isLoading && consultorioSelected) {
-  <app-header></app-header>
-  <div class="apple-container container py-3">
+
+  <!-- =========================================================================
+       🏢 INTERCEPTOR ENTERPRISE KLYNTIC (INSTAGRAM FLOW)
+       ========================================================================= -->
+  <!-- Si el subdominio es una clínica corporativa y el paciente aún no escoge especialista, bloqueamos la vista con el Selector Apple -->
+  @if (consultorioSelected?.tipoClinica?.toLowerCase() === 'clinica' && !doctorSelected) {
     
-    <!-- 💳 SECCIÓN INICIAL: PERFIL DE PRESENTACIÓN HORIZONTAL (Estilo Apple Compact) -->
-    <div class="apple-profile-card d-flex align-items-center gap-3 mb-4 animate__animated animate__fadeIn">
+    <app-selector-apple (onDoctorSelected)="recibirDoctorDeSelector($event)"></app-selector-apple>
+
+  } @else {
+
+    
+    <app-header></app-header>
+    <div class="apple-container container py-3">
       
-      <!-- Lado Izquierdo: Contenedor con la Imagen y el Badge Verde de Estado Activo -->
-      <div class="position-relative flex-shrink-0">
-        <img [src]="consultorioSelected?.img | imagenPipe: 'staffs'" 
-             [alt]="consultorioSelected?.name" 
-             class="doctor-avatar shadow-sm">
-        <span class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"></span>
-      </div>
-      
-      <!-- Lado Derecho: Textos alineados horizontalmente -->
-      <div class="flex-grow-1">
-        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-          <h1 class="doctor-name fw-bold m-0">{{ consultorioSelected?.tipoClinica }}</h1>
-          <span class="badge bg-success-subtle text-success rounded-pill fw-semibold border border-success-subtle apple-mini-badge">
-            <i class="fa-solid fa-circle-check"></i>
-          </span>
+      <!-- 💳 SECCIÓN INICIAL: PERFIL DE PRESENTACIÓN HORIZONTAL (Estilo Apple Compact) -->
+      <div class="apple-profile-card d-flex align-items-center gap-3 mb-4 animate__animated animate__fadeIn">
+        
+        <!-- Lado Izquierdo: Contenedor con la Imagen y el Badge Verde de Estado Activo -->
+        <div class="position-relative flex-shrink-0">
+          <img [src]="consultorioSelected?.img | imagenPipe: 'staffs'" 
+               [alt]="consultorioSelected?.name" 
+               class="doctor-avatar shadow-sm">
+          <span class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"></span>
         </div>
         
-        <p class="doctor-specialty text-secondary fw-medium m-0 mb-1 small">
-          <i class="fa-solid fa-stethoscope text-purple me-1"></i> 
-          {{ doctorSelected?.doctor?.speciality?.name || 'Médico Especialista' }}
-        </p>
-        
-        <div class="d-flex align-items-center gap-1">
-          <span class="location-text text-muted">
-            <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ consultorioSelected?.ciudad || 'Caracas' }}
-          </span>
+        <!-- Lado Derecho: Textos alineados horizontalmente -->
+        <div class="flex-grow-1">
+          <!-- ↩️ BOTÓN DE REGRESO INTERNO PREMIUM (Solo si es Clínica Enterprise) -->
+      @if (consultorioSelected?.tipoClinica?.toLowerCase() === 'clinica') {
+        <div class="mb-1 animate__animated animate__fadeIn">
+          <button (click)="volverAlSelectorDeEspecialistas()" class="klyntic-back-link">
+            <i class="fa-solid fa-arrow-left-long me-1"></i> Cambiar de especialista
+          </button>
         </div>
-        <div class="d-flex align-items-center gap-1" *ngIf="consultorioSelected?.phone">
-          <span class="location-text text-muted">
-            <i class="fa-brands fa-whatsapp text-success me-1"></i> {{ consultorioSelected?.phone  }}
-          </span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- GRID DE INFORMACIÓN (Estilo Apple Cards - Tu código impecable continúa abajo) -->
-    <main class="row g-4 justify-content-center">
-      
-      <!-- TARJETA 1: Consultas y Precios -->
-      <section class="col-12 col-md-6 col-lg-5">
-        <div class="apple-card h-100 p-4 border-0">
-          <div class="card-apple-icon bg-primary-subtle text-primary mb-3">
-            <i class="fa-solid fa-user-doctor fs-4"></i>
+      }
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <h1 class="doctor-name fw-bold m-0">{{ consultorioSelected?.tipoClinica }}</h1>
+            <span class="badge bg-success-subtle text-success rounded-pill fw-semibold border border-success-subtle apple-mini-badge">
+              <i class="fa-solid fa-circle-check"></i>
+            </span>
           </div>
-          <h2 class="h5 fw-bold mb-3">Consultas y Tarifas</h2>
-          <ul class="list-unstyled mb-0">
-            @for (tarifa of consultorioSelected?.ConsultasyTarifasList; track tarifa) {
-              <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
-                <span class="text-secondary fw-medium">{{ tarifa.descripcion }}</span>
-                <span class="fw-bold text-dark">{{ tarifa.precio }}</span>
-              </li>
-            } @empty {
-              <li class="text-muted small py-2">Consulte los costos vigentes en taquilla.</li>
-            }
-            <li class="d-flex justify-content-between align-items-center pt-2.5">
-              <span class="text-secondary fw-medium">Monedas / Métodos</span>
-              <span class="badge bg-light text-dark border fw-semibold">
-                {{ doctorSelected?.doctor?.moneda || 'USD' }}
-              </span>
-            </li>
-            <li class="d-flex justify-content-between align-items-center pt-2.5">
-             <div class="d-flex flex-wrap gap-2">
-            @for (payment of paymentMetods; track payment) {
-              <span class="apple-pill">
-                <i class="fa-solid fa-check text-primary me-1"></i> 
-                {{ payment.tipo }} 
-              </span>
-            } @empty {
-              <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
-            }
-          </div>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- TARJETA 2: Ubicación y Horarios -->
-      <section class="col-12 col-md-6 col-lg-5">
-        <div class="apple-card h-100 p-4 border-0">
-          <div class="card-apple-icon bg-success-subtle text-success mb-3">
-            <i class="fa-solid fa-map-location-dot fs-4"></i>
-          </div>
-          <h2 class="h5 fw-bold mb-3">Ubicación</h2>
-          <p class="fw-semibold text-dark mb-1">{{ consultorioSelected?.ciudad || 'Centro de Salud' }}</p>
           
-          <ul class="list-unstyled mb-0">
-            @for (locat of locations; track locat) {
-              <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
-                <span class="text-secondary fw-medium">{{ locat.name_consultorio }}</span>
-                <span class="fw-bold text-dark">{{ locat.address }}</span>
+          <p class="doctor-specialty text-secondary fw-medium m-0 mb-1 small">
+            <i class="fa-solid fa-stethoscope text-purple me-1"></i> 
+            {{ doctorSelected?.doctor?.speciality?.name || 'Médico Especialista' }}
+          </p>
+          
+          <div class="d-flex align-items-center gap-1">
+            <span class="location-text text-muted">
+              <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ consultorioSelected?.ciudad || 'Caracas' }}
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-1" *ngIf="consultorioSelected?.phone">
+            <span class="location-text text-muted">
+              <i class="fa-brands fa-whatsapp text-success me-1"></i> {{ consultorioSelected?.phone  }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- GRID DE INFORMACIÓN (Estilo Apple Cards - Tu código impecable continúa abajo) -->
+      <main class="row g-4 justify-content-center">
+        
+        <!-- TARJETA 1: Consultas y Precios -->
+        <section class="col-12 col-md-6 col-lg-5">
+          <div class="apple-card h-100 p-4 border-0">
+            <div class="card-apple-icon bg-primary-subtle text-primary mb-3">
+              <i class="fa-solid fa-user-doctor fs-4"></i>
+            </div>
+            <h2 class="h5 fw-bold mb-3">Consultas y Tarifas</h2>
+            <ul class="list-unstyled mb-0">
+              @for (tarifa of consultorioSelected?.ConsultasyTarifasList; track tarifa) {
+                <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
+                  <span class="text-secondary fw-medium">{{ tarifa.descripcion }}</span>
+                  <span class="fw-bold text-dark">{{ tarifa.precio }}</span>
+                </li>
+              } @empty {
+                <li class="text-muted small py-2">Consulte los costos vigentes en taquilla.</li>
+              }
+              <li class="d-flex justify-content-between align-items-center pt-2.5">
+                <span class="text-secondary fw-medium">Monedas / Métodos</span>
+                <span class="badge bg-light text-dark border fw-semibold">
+                  {{ doctorSelected?.doctor?.moneda || 'USD' }}
+                </span>
               </li>
-            } @empty {
-              <!-- <p class="text-secondary small mb-3">
-              {{ consultorioSelected?.address || 'Dirección de consulta médica no especificada.' }}
-            </p> -->
-            }
-            
-          </ul>
-          <div class="bg-light rounded-3 p-3 d-flex align-items-center gap-3">
-            <i class="fa-regular fa-clock text-secondary fs-5"></i>
-            <div>
-              <p class="mb-0 small fw-bold text-dark">Horario de Atención</p>
-              <p class="mb-0 text-secondary x-small">{{ consultorioSelected?.HorariodeAtencion || 'Previa Cita' }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- TARJETA 3: Servicios Especializados -->
-      <section class="col-12 col-md-6 col-lg-5">
-        <div class="apple-card h-100 p-4 border-0">
-          <div class="card-apple-icon bg-purple-subtle text-purple mb-3">
-            <i class="fa-solid fa-microscope fs-4"></i>
-          </div>
-          <h2 class="h5 fw-bold mb-3">Servicios y Procedimientos</h2>
-          <div class="d-flex flex-wrap gap-2">
-            @for (servicio of consultorioSelected?.Servicios_procedimientosList; track servicio) {
-              <span class="apple-pill">
-                <i class="fa-solid fa-check text-primary me-1"></i> 
-                {{ servicio.descripcion }} <strong class="ms-1" style="color: #513081;">{{doctorSelected?.doctor?.moneda}} ({{ servicio.precio }})</strong>
-              </span>
-            } @empty {
-              <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- TARJETA 4: Esquema de Vacunación -->
-      <section class="col-12 col-md-6 col-lg-5">
-        @if (consultorioSelected?.usavacunas) {
-          <div class="apple-card h-100 p-4 border-0 animate__animated animate__fadeIn">
-            <div class="card-apple-icon bg-warning-subtle text-warning mb-3">
-              <i class="fa-solid fa-syringe fs-4"></i>
-            </div>
-            <h2 class="h5 fw-bold mb-3">Inmunización y Vacunas</h2>
-            <p class="text-secondary small mb-3">Disponibilidad de vacunas preventivas controladas en este establecimiento:</p>
-            <div class="d-flex flex-column gap-2">
-              @for (vacuna of consultorioSelected?.vacunasList; track vacuna) {
-                <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3">
-                  <span class="small fw-medium text-dark">
-                    <i class="fa-solid fa-shield-virus me-2 text-warning"></i> {{ vacuna.descripcion }}
-                  </span>
-                  <span class="badge bg-success-subtle text-success rounded-pill fw-semibold x-small">
-                    {{doctorSelected?.doctor?.moneda}} {{ vacuna.precio }}
-                  </span>
+              <li class="d-flex justify-content-between align-items-center pt-2.5">
+                <div class="d-flex flex-wrap gap-2">
+                  @for (payment of paymentMetods; track payment) {
+                    <span class="apple-pill">
+                      <i class="fa-solid fa-check text-primary me-1"></i> 
+                      {{ payment.tipo }} 
+                    </span>
+                  } @empty {
+                    <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
+                  }
                 </div>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- TARJETA 2: Ubicación y Horarios -->
+        <section class="col-12 col-md-6 col-lg-5">
+          <div class="apple-card h-100 p-4 border-0">
+            <div class="card-apple-icon bg-success-subtle text-success mb-3">
+              <i class="fa-solid fa-map-location-dot fs-4"></i>
+            </div>
+            <h2 class="h5 fw-bold mb-3">Ubicación</h2>
+            <p class="fw-semibold text-dark mb-1">{{ consultorioSelected?.ciudad || 'Centro de Salud' }}</p>
+            
+            <ul class="list-unstyled mb-0">
+              @for (locat of locations; track locat) {
+                <li class="d-flex justify-content-between align-items-center py-2.5 border-bottom border-light">
+                  <span class="text-secondary fw-medium">{{ locat.name_consultorio }}</span>
+                  <span class="fw-bold text-dark">{{ locat.address }}</span>
+                </li>
+              } @empty {
+                <!-- Relación vacía manejada por el core -->
+              }
+            </ul>
+            <div class="bg-light rounded-3 p-3 d-flex align-items-center gap-3">
+              <i class="fa-regular fa-clock text-secondary fs-5"></i>
+              <div>
+                <p class="mb-0 small fw-bold text-dark">Horario de Atención</p>
+                <p class="mb-0 text-secondary x-small">{{ consultorioSelected?.HorariodeAtencion || 'Previa Cita' }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TARJETA 3: Servicios Especializados -->
+        <section class="col-12 col-md-6 col-lg-5">
+          <div class="apple-card h-100 p-4 border-0">
+            <div class="card-apple-icon bg-purple-subtle text-purple mb-3">
+              <i class="fa-solid fa-microscope fs-4"></i>
+            </div>
+            <h2 class="h5 fw-bold mb-3">Servicios y Procedimientos</h2>
+            <div class="d-flex flex-wrap gap-2">
+              @for (servicio of consultorioSelected?.Servicios_procedimientosList; track servicio) {
+                <span class="apple-pill">
+                  <i class="fa-solid fa-check text-primary me-1"></i> 
+                  {{ servicio.descripcion }} <strong class="ms-1" style="color: #513081;">{{doctorSelected?.doctor?.moneda}} ({{ servicio.precio }})</strong>
+                </span>
+              } @empty {
+                <span class="text-muted small">Consulte el catálogo de servicios con el especialista.</span>
               }
             </div>
           </div>
-        } @else {
-          <div class="apple-card h-100 p-4 border-0 d-flex flex-column align-items-center justify-content-center text-center bg-light-subtle">
-            <i class="fa-solid fa-circle-info text-secondary fs-3 mb-2"></i>
-            <h2 class="h6 fw-bold text-secondary mb-1">Medicina General</h2>
-            <p class="text-muted x-small mb-0">Este consultorio no ofrece servicios de inmunización externa actualmente.</p>
-          </div>
-        }
+        </section>
+
+        <!-- TARJETA 4: Esquema de Vacunación -->
+        <section class="col-12 col-md-6 col-lg-5">
+          @if (consultorioSelected?.usavacunas) {
+            <div class="apple-card h-100 p-4 border-0 animate__animated animate__fadeIn">
+              <div class="card-apple-icon bg-warning-subtle text-warning mb-3">
+                <i class="fa-solid fa-syringe fs-4"></i>
+              </div>
+              <h2 class="h5 fw-bold mb-3">Inmunización y Vacunas</h2>
+              <p class="text-secondary small mb-3">Disponibilidad de vacunas preventivas controladas en este establecimiento:</p>
+              <div class="d-flex flex-column gap-2">
+                @for (vacuna of consultorioSelected?.vacunasList; track vacuna) {
+                  <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3">
+                    <span class="small fw-medium text-dark">
+                      <i class="fa-solid fa-shield-virus me-2 text-warning"></i> {{ vacuna.descripcion }}
+                    </span>
+                    <span class="badge bg-success-subtle text-success rounded-pill fw-semibold x-small">
+                      {{doctorSelected?.doctor?.moneda}} {{ vacuna.precio }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="apple-card h-100 p-4 border-0 d-flex flex-column align-items-center justify-content-center text-center bg-light">
+              <div class="card-apple-icon bg-secondary-subtle text-secondary mb-3">
+                <i class="fa-solid fa-notes-medical fs-4"></i>
+              </div>
+              <h2 class="h5 fw-bold mb-1">Medicina General</h2>
+              <p class="text-secondary small mb-0">Este consultorio no ofrece servicios de inmunización externa actualmente.</p>
+            </div>
+          }
+        </section>
+
+      </main>
+
+      <!-- SECCIÓN DEL AGENDAMIENTO MÓVIL REACCIÓN -->
+      <section class="mt-4">
+        <app-agendar-cita [consultorio]="consultorioSelected"></app-agendar-cita>
       </section>
 
-    </main>
+    </div> <!-- Fin .apple-container -->
 
-    <!-- BOTÓN DE ACCIÓN CENTRAL (El bello botón Apple) -->
-    <footer class="text-center mt-5 sticky-bottom-mobile animate__animated animate__idUp">
-      <button type="button" 
-              data-bs-toggle="offcanvas" 
-              data-bs-target="#offcanvasCita" 
-              class="btn btn-apple-primary btn-lg px-5 py-3 shadow-lg">
-        Solicitar Cita Médica <i class="fa-solid fa-chevron-right ms-2 fs-6"></i>
-      </button>
-      <p class="text-secondary x-small mt-2"><i class="fa-solid fa-lock me-1"></i> Reserva gestionada de forma segura por Klyntic</p>
-      <p class="text-secondary x-small mt-2">&copy; 2026 Klyntic App. Todos los derechos reservados</p>
-    </footer>
+  } <!-- Fin del @else Enterprise -->
 
-  </div>
 }
-
-<app-agendar-cita [consultorio]="consultorioSelected"></app-agendar-cita>

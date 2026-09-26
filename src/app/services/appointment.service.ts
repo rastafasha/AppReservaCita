@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 const url_servicios = environment.url_servicios;
@@ -32,7 +33,7 @@ export class AppointmentService {
    */
   listConfig() {
     const URL = `${url_servicios}/appointments/config`;
-    return this.http.get(URL); // Solicitud limpia sin restricciones de login
+    return this.http.get(URL);
   }
 
   /**
@@ -56,11 +57,12 @@ export class AppointmentService {
     return this.http.post(URL, data);
   }
 
-  // =========================================================================
-  // 🔒 ENDPOINTS PRIVADOS: EXCLUSIVOS PARA PANEL DE MÉDICOS (REQUIEREN TOKEN)
-  // =========================================================================
-  
-  
- 
-
+  /**
+   *  NUEVO ENTORNO ENTERPRISE KLYNTIC
+   * Obtiene las especialidades y doctores del subdominio clínico actual desde Laravel
+   */
+  getSelectorEspecialistas(): Observable<any> {
+    const URL = `${url_servicios}/clinica/selector-especialistas`;
+    return this.http.get<any>(URL);
+  }
 }

@@ -1,0 +1,74 @@
+@if (!loading) {
+  <div class="klyntic-apple-selector-container">
+    
+    <!-- Encabezado Premium -->
+    <div class="selector-header">
+      <h2>Selecciona tu especialidad y especialista</h2>
+      <p class="subtitle">Encuentra al profesional ideal adscrito a nuestro centro médico corporativo.</p>
+    </div>
+
+    <div class="grid-selector-layout">
+      
+      <!-- COLUMNA IZQUIERDA: Selector de Especialidades en Píldoras -->
+      <div class="especialidades-sidebar">
+        <!-- 🚀 CORRECCIÓN AQUÍ: Cambiado 'rolesCheckedValue' por 'especialidades' -->
+        @for (esp of especialidades; track esp.especialidad_id) {
+          <button 
+            class="apple-pill-btn"
+            [class.active]="especialidadSeleccionada?.especialidad_id === esp.especialidad_id"
+            (click)="seleccionarEspecialidad(esp)">
+            <span class="bullet-indicator"></span>
+            {{ esp.especialidad_name }}
+          </button>
+        }
+      </div>
+
+      <!-- COLUMNA DERECHA: Grid de Doctores de la especialidad activa -->
+      <div class="doctores-content-area">
+        @if (especialidadSeleccionada) {
+          <h3 class="section-title">
+            Especialistas en {{ especialidadSeleccionada.especialidad_name }}
+          </h3>
+        }
+
+        <div class="doctores-grid">
+          @for (doc of especialidadSeleccionada?.doctores; track doc.id) {
+            <div class="apple-doctor-card"
+     [class.selected]="doctorSeleccionado?.id === doc.id"
+     (click)="seleccionarDoctor(doc)">
+     
+     <!-- 🚀 CONTENEDOR SANEADO: El texto no debe ir dentro del avatar -->
+     <div class="avatar-wrapper">
+       <img [src]="doc.avatar ? doc.avatar : 'assets/img/default-doctor.png'" 
+            [alt]="doc.full_name">
+     </div>
+     
+     <div class="doctor-info">
+       <h4>{{ doc.full_name }}</h4>
+       <div class="price-tag">
+         <span>Consulta: </span>
+         <!-- 🚀 CONTROL DE FALLBACK: Si precio_cita viene vacío, muestra un valor base o 'Consultar' -->
+         <strong>{{ doc.precio_cita ? (doc.precio_cita | currency: doc.moneda) : 'Consultar' }}</strong>
+       </div>
+     </div>
+
+     <div class="selection-indicator">
+       <div class="inner-circle"></div>
+     </div>
+</div>
+          } @empty {
+            <div class="empty-state">
+              <p>No hay especialistas disponibles asignados a esta clínica para la rama seleccionada.</p>
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="loading-container">
+    <div class="klyntic-spinner"></div>
+    <p>Sincronizando catálogo de la clínica...</p>
+  </div>
+}
