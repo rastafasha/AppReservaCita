@@ -8,6 +8,7 @@
     "start:prod": "ng build --configuration app-reserva-cita && lite-server -p 8080 --baseDir dist/app-reserva-cita/browser",
     "build": "ng build",
     "build:kexpress": "ng build --configuration kexpress",
+    "build:clinica": "ng build --configuration clinica",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
