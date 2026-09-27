@@ -198,7 +198,7 @@ export class HomeClinicaComponent implements OnInit, OnDestroy {
         this.consultorioSelected.user_id = this.doctorId;
 
         this.getTiposPago();
-        this.establecerSeoCardPremium(this.consultorioSelected, perfilDoctor);
+        this.establecerSeoCardPremium(this.consultorioSelected);
         this.isLoading = false; // 🔥 Apaga el spinner: Se revela la agenda del médico con toda su info
         console.log(`🚀 [Instagram Flow] Agenda activa para: ${perfilDoctor?.full_name}`);
       },
@@ -209,22 +209,26 @@ export class HomeClinicaComponent implements OnInit, OnDestroy {
     });
   }
 
-  private establecerSeoCardPremium(consultorio: any, perfilDoctor: any) {
-    const nombreDoctor = perfilDoctor?.full_name || consultorio?.name;
-    const especialidad = perfilDoctor?.doctor?.speciality?.name;
+  private establecerSeoCardPremium(consultorio: any) {
+    const nombreDoctor = consultorio?.name;
     const ciudad = consultorio?.ciudad;
 
-    const tituloCompleto = `${nombreDoctor} - ${especialidad} | Klyntic Express`;
+    const tituloCompleto = `${nombreDoctor} | Klyntic Express`;
     this.titleService.setTitle(tituloCompleto);
 
-    const descripcionComercial = `Solicita tu cita médica en línea con el especialista ${nombreDoctor} (${especialidad}) en ${ciudad}. Gestión segura a través de Klyntic Express.`;
+    const descripcionComercial = `Solicita tu cita médica en línea con la clínica ${nombreDoctor} en ${ciudad}. Gestión segura a través de Klyntic Express.`;
 
     this.metaService.removeTag("name='description'");
     this.metaService.addTags([
       { name: 'description', content: descripcionComercial },
       { property: 'og:title', content: tituloCompleto },
       { property: 'og:description', content: descripcionComercial },
-      { property: 'og:image', content: perfilDoctor?.img_logo || consultorio?.img_logo || 'https://klyntic.com' }
+      { property: 'og:image', content:  'https://klyntic.com/assets/images/logoklyntic.png' },
+      
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: tituloCompleto },
+      { name: 'twitter:description', content: descripcionComercial },
+      { name: 'twitter:image', content: 'https://klyntic.com/assets/images/logoklyntic.png' }
     ]);
   }
 

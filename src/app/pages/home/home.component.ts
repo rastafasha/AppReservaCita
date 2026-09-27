@@ -167,13 +167,13 @@ export class HomeComponent {
       { property: 'og:description', content: descripcionComercial },
       { property: 'og:type', content: 'profile' },
       { property: 'og:url', content: window.location.href },
-      { property: 'og:image', content: perfilDoctor?.img_logo || consultorio?.img_logo || 'https://klyntic.com' },
+      { property: 'og:image', content: 'https://klyntic.com/assets/images/logoklyntic.png' },
       { property: 'og:site_name', content: 'Klyntic Express' },
 
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: tituloCompleto },
       { name: 'twitter:description', content: descripcionComercial },
-      { name: 'twitter:image', content: perfilDoctor?.img_logo || consultorio?.img_logo || 'https://klyntic.com' }
+      { name: 'twitter:image', content: 'https://klyntic.com/assets/images/logoklyntic.png' }
     ]);
   }
 }
