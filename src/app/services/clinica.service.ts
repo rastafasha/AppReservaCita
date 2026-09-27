@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, map, tap, shareReplay } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 const base_url = environment.backend_node;
+const base_urlLaravel = environment.url_servicios;
 
 @Injectable({
   providedIn: 'root'
@@ -187,4 +188,6 @@ public obtenerSlugDeUrl(): string {
   getSelectedClinicaSync(): any | null {
     return this.selectedClinicaSubject.value;
   }
+
+  
 }

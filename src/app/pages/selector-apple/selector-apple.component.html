@@ -1,74 +1,109 @@
 @if (!loading) {
-  <div class="klyntic-apple-selector-container">
-    
-    <!-- Encabezado Premium -->
-    <div class="selector-header">
-      <h2>Selecciona tu especialidad y especialista</h2>
-      <p class="subtitle">Encuentra al profesional ideal adscrito a nuestro centro médico corporativo.</p>
-    </div>
 
-    <div class="grid-selector-layout">
-      
-      <!-- COLUMNA IZQUIERDA: Selector de Especialidades en Píldoras -->
-      <div class="especialidades-sidebar">
-        <!-- 🚀 CORRECCIÓN AQUÍ: Cambiado 'rolesCheckedValue' por 'especialidades' -->
-        @for (esp of especialidades; track esp.especialidad_id) {
-          <button 
-            class="apple-pill-btn"
-            [class.active]="especialidadSeleccionada?.especialidad_id === esp.especialidad_id"
-            (click)="seleccionarEspecialidad(esp)">
-            <span class="bullet-indicator"></span>
-            {{ esp.especialidad_name }}
-          </button>
-        }
-      </div>
-
-      <!-- COLUMNA DERECHA: Grid de Doctores de la especialidad activa -->
-      <div class="doctores-content-area">
-        @if (especialidadSeleccionada) {
-          <h3 class="section-title">
-            Especialistas en {{ especialidadSeleccionada.especialidad_name }}
-          </h3>
-        }
-
-        <div class="doctores-grid">
-          @for (doc of especialidadSeleccionada?.doctores; track doc.id) {
-            <div class="apple-doctor-card"
-     [class.selected]="doctorSeleccionado?.id === doc.id"
-     (click)="seleccionarDoctor(doc)">
+  <app-header></app-header>
+  <!-- 💳 SECCIÓN INICIAL: PERFIL DE PRESENTACIÓN HORIZONTAL (Estilo Apple Compact) -->
+      <div class="apple-profile-card d-flex align-items-center gap-3 mb-4 animate__animated animate__fadeIn">
+        
+        <!-- Lado Izquierdo: Contenedor con la Imagen y el Badge Verde de Estado Activo -->
+        <div class="position-relative flex-shrink-0">
+          <img [src]="clinica?.img | imagenPipe: 'staffs'" 
+               [alt]="clinica?.name" 
+               class="doctor-avatar shadow-sm">
+          <span class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"></span>
+        </div>
+        
+        <!-- Lado Derecho: Textos alineados horizontalmente -->
+        <div class="flex-grow-1">
      
-     <!-- 🚀 CONTENEDOR SANEADO: El texto no debe ir dentro del avatar -->
-     <div class="avatar-wrapper">
-       <img [src]="doc.avatar ? doc.avatar : 'assets/img/default-doctor.png'" 
-            [alt]="doc.full_name">
-     </div>
-     
-     <div class="doctor-info">
-       <h4>{{ doc.full_name }}</h4>
-       <div class="price-tag">
-         <span>Consulta: </span>
-         <!-- 🚀 CONTROL DE FALLBACK: Si precio_cita viene vacío, muestra un valor base o 'Consultar' -->
-         <strong>{{ doc.precio_cita ? (doc.precio_cita | currency: doc.moneda) : 'Consultar' }}</strong>
-       </div>
-     </div>
-
-     <div class="selection-indicator">
-       <div class="inner-circle"></div>
-     </div>
-</div>
-          } @empty {
-            <div class="empty-state">
-              <p>No hay especialistas disponibles asignados a esta clínica para la rama seleccionada.</p>
-            </div>
-          }
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <h1 class="doctor-name fw-bold m-0">{{ clinica?.name }}</h1>
+            <span class="badge bg-success-subtle text-success rounded-pill fw-semibold border border-success-subtle apple-mini-badge">
+              <i class="fa-solid fa-circle-check"></i>
+            </span>
+          </div>
+          
+          
+          <div class="d-flex align-items-center gap-1">
+            <span class="location-text text-muted">
+              <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ clinica?.address }}
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-1" *ngIf="clinica?.phone">
+            <span class="location-text text-muted">
+              <i class="fa-brands fa-whatsapp text-success me-1"></i> {{ clinica?.phone  }}
+            </span>
+          </div>
         </div>
 
       </div>
+<div class="klyntic-apple-selector-container">
+
+  
+
+  <!-- Encabezado Premium -->
+  <div class="selector-header">
+    <h2>Selecciona tu especialidad y especialista</h2>
+    <p class="subtitle">Encuentra al profesional ideal adscrito a nuestro centro médico corporativo.</p>
+  </div>
+
+  <div class="grid-selector-layout">
+
+    <!-- COLUMNA IZQUIERDA: Selector de Especialidades en Píldoras -->
+    <div class="especialidades-sidebar">
+      <!-- 🚀 CORRECCIÓN AQUÍ: Cambiado 'rolesCheckedValue' por 'especialidades' -->
+      @for (esp of especialidades; track esp.especialidad_id) {
+      <button class="apple-pill-btn" [class.active]="especialidadSeleccionada?.especialidad_id === esp.especialidad_id"
+        (click)="seleccionarEspecialidad(esp)">
+        <span class="bullet-indicator"></span>
+        {{ esp.especialidad_name }}
+      </button>
+      }
+    </div>
+
+    <!-- COLUMNA DERECHA: Grid de Doctores de la especialidad activa -->
+    <div class="doctores-content-area">
+      @if (especialidadSeleccionada) {
+      <h3 class="section-title">
+        Especialistas en {{ especialidadSeleccionada.especialidad_name }}
+      </h3>
+      }
+
+      <div class="doctores-grid">
+        @for (doc of especialidadSeleccionada?.doctores; track doc.id) {
+        <div class="apple-doctor-card" [class.selected]="doctorSeleccionado?.id === doc.id"
+          (click)="seleccionarDoctor(doc)">
+
+          <!-- 🚀 CONTENEDOR SANEADO: El texto no debe ir dentro del avatar -->
+          <div class="avatar-wrapper">
+            <img [src]="doc.avatar | imagenPipe: 'staffs'" [alt]="doc.full_name">
+          </div>
+
+          <div class="doctor-info">
+            <h4>{{ doc.full_name }}</h4>
+            <div class="price-tag">
+              <span>Consulta: </span>
+              <!-- 🚀 CONTROL DE FALLBACK: Si precio_cita viene vacío, muestra un valor base o 'Consultar' -->
+              <strong>{{ doc.precio_cita ? (doc.precio_cita | currency: doc.moneda) : 'Consultar' }}</strong>
+            </div>
+          </div>
+
+          <div class="selection-indicator">
+            <div class="inner-circle"></div>
+          </div>
+        </div>
+        } @empty {
+        <div class="empty-state">
+          <p>No hay especialistas disponibles asignados a esta clínica para la rama seleccionada.</p>
+        </div>
+        }
+      </div>
+
     </div>
   </div>
+</div>
 } @else {
-  <div class="loading-container">
-    <div class="klyntic-spinner"></div>
-    <p>Sincronizando catálogo de la clínica...</p>
-  </div>
+<div class="loading-container">
+  <div class="klyntic-spinner"></div>
+  <p>Sincronizando catálogo de la clínica...</p>
+</div>
 }

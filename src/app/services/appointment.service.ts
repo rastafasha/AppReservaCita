@@ -36,6 +36,8 @@ export class AppointmentService {
     return this.http.get(URL);
   }
 
+ 
+
   /**
    * Registra la cita express de forma anónima y crea el pre-registro del paciente
    */

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AppointmentService } from '../../services/appointment.service';
 import { ToastrService } from 'ngx-toastr';
@@ -23,6 +23,10 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
 export class AgendarCitaComponent implements OnInit, OnChanges {
 
   @Input() consultorio: any;
+  @Input() doctorSelected: any;
+  @Input() msm_success_value: boolean = false;
+  @Output() msm_success = new EventEmitter<boolean>();
+
   public selectedValue!: string;
 
   valid_form_success: boolean = false;
@@ -50,7 +54,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
   DOCTOR_SELECTED: any;
   DOCTOR_Det_SELECTED: any;
   selecteDoc: boolean = false;
-
+  specialityDoctor: any;
   selected_segment_hour: any;
   addresses?: DoctorAddress;
   segments: any;
@@ -172,7 +176,6 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
 
     this.appointmentService.lisFiterByDoctor(data, this.DOCTOR.id).subscribe({
       next: (resp: any) => {
-        console.log('📦 Respuesta cruda de Laravel:', resp);
 
         if (resp.message === 403 || !resp.doctor || resp.doctor.length === 0) {
           this.text_validation = resp.message_text;
@@ -180,6 +183,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
           this.segments = [];
         } else {
           this.DOCTOR = resp.doctor;
+          this.specialityDoctor = resp.doctor.speciality.id;
 
           // Extraemos todos los segmentos que devolvió el servidor para el día
           let todosLosSegmentos = [];
@@ -200,7 +204,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
                 (seg.format_segment && seg.format_segment.hour_id == this.hour) ||
                 (seg.format_segment && seg.format_segment.hour == this.hour);
             });
-            console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora: ${this.hour}. Total: ${this.segments.length}`);
+            // console.log(`🎯 [Grupo Filtrado] Mostrando solo el grupo de la hora: ${this.hour}. Total: ${this.segments.length}`);
 
             // Si eligió una hora pero ese bloque específico está full o vacío:
             if (this.segments.length === 0) {
@@ -233,6 +237,7 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
   saveExpress() {
     this.text_validation = '';
 
+    // 1. Validación inicial del formulario reactivo (Mantenemos tus validaciones de producción)
     if (this.expressPatientForm.invalid) {
       this.text_validation = "Por favor, completa correctamente todos tus datos personales.";
       this.toastr.warning(this.text_validation);
@@ -241,43 +246,89 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
 
     this.cargando = true;
 
-    // 🔒 VINCULACIÓN MAESTRA CON EL TENANT: Extraemos datos del @Input() consultorio
+    // 2. Capturamos los IDs y banderas del componente de forma segura usando tus objetos reales
+    const clinicaIdFinal = this.consultorio?.id || this.consultorio?._id || '1';
+    const esClinicaEnterprise = this.consultorio?.tipoClinica?.toLowerCase() === 'clinica';
+    const specialityId = this.specialityDoctor;
+
+    if (esClinicaEnterprise) {
+      console.log(`🏢 [saveExpress]: Modo Clínica. Consultando tarifa oficial para especialidad ID: ${specialityId}`);
+
+      // 🚀 Usamos tu propia función para pedir la especialidad al appointmentService
+      this.appointmentService.showSpeciality(specialityId).subscribe({
+        next: (respConfig: any) => {
+          // Mapeamos los precios según la respuesta de tu backend de Laravel
+          const precioEspecialidadLaravel = respConfig?.price || 0;
+          const monedaEspecialidadLaravel = respConfig?.moneda || 'USD';
+
+          console.log(`✅ [showSpeciality]: Tarifa recuperada de Laravel: ${precioEspecialidadLaravel} ${monedaEspecialidadLaravel}`);
+
+          // Ejecutamos el empaquetado y guardado real con la data asíncrona oficial
+          this.enviarPayloadCita(clinicaIdFinal, precioEspecialidadLaravel, monedaEspecialidadLaravel);
+        },
+        error: (err) => {
+          console.error('❌ Error consultando showSpeciality. Aplicando Fallback del doctor:', err);
+          // Fallback seguro: Si el endpoint falla, usamos el precio inyectado en tu objeto DOCTOR
+          const precioFallback = this.DOCTOR?.doctor?.precio_cita || 0;
+          const monedaFallback = this.DOCTOR?.doctor?.moneda || this.consultorio?.moneda || 'USD';
+
+          this.enviarPayloadCita(clinicaIdFinal, precioFallback, monedaFallback);
+        }
+      });
+    } else {
+      // 🩺 FLUJO CONSULTORIO: Usa directo el precio configurado por el médico independiente
+      const precioParticular = this.DOCTOR?.doctor?.precio_cita || 0;
+      const monedaParticular = this.DOCTOR?.doctor?.moneda || 'USD';
+
+      console.log(`🩺 [saveExpress]: Modo Consultorio. Aplicando precio del médico: ${precioParticular}`);
+      this.enviarPayloadCita(clinicaIdFinal, precioParticular, monedaParticular);
+    }
+  }
+
+  /**
+   * 📦 MÉTODO AUXILIAR INTERNO (Procesa el guardado real y detona tus servicios de producción)
+   */
+  private enviarPayloadCita(clinicaId: string, monto: number, moneda: string) {
+    // Construimos el objeto dataExpress utilizando los datos de tu formulario reactivo
     const dataExpress = {
-      // Si el CRM tiene el ID de Laravel, úsalo; si no, enviamos el del CRM o el fallback requerido
-      doctor_id: this.consultorio?.user_id || this.consultorio?._id || 3,
-      speciality_id: this.DOCTOR.speciality.id,
+      clinica_id: clinicaId,
+      doctor_id: this.DOCTOR?.id,
+      amount: monto,                     // 🔥 El precio dinámico condicionado (Ya no será undefined)
+      moneda: moneda,                    // 🔥 La divisa coordinada
+      speciality_id: this.specialityDoctor,
       date_appointment: this.date_appointment,
       doctor_schedule_join_hour_id: this.selected_segment_hour.id,
-      amount: this.DOCTOR.precio_cita || 0, // Usamos el precio de la especialidad consultada
       status_pay: 2,
       status: 1,
 
-      // Datos personales separados capturados del formulario reactivo
-      name: this.expressPatientForm.get('nombre')?.value,
-      surname: this.expressPatientForm.get('apellido')?.value,
+      // Datos personales separados capturados de tus campos del formulario reactivo
+      nombre: this.expressPatientForm.get('nombre')?.value,
+      apellido: this.expressPatientForm.get('apellido')?.value,
       n_doc: this.expressPatientForm.get('n_doc')?.value,
       phone: this.expressPatientForm.get('phone')?.value,
       email: `${this.expressPatientForm.get('n_doc')?.value}@klyntic.express`
     };
 
+    // console.log('📦 Despachando Payload definitivo hacia la central Klyntic:', dataExpress);
+
     this.appointmentService.storeAppointmentExpress(dataExpress).subscribe({
       next: (resp: any) => {
         this.toastr.success('¡Solicitud enviada a la central con éxito!');
         this.cargando = false;
+        this.msm_success.emit(true); // Encendemos confirmación visual en el padre
 
-        // ❌ REMOVIDO: Comentamos o eliminamos esta línea para que el panel se quede abierto 
-        // y el paciente pueda ver el botón verde de redirección nativa.
-        // this.cerrarOffcanvas(); 
-
-        // 🚀 EJECUTAMOS: Esto preparará la URL y activará el botón en tu HTML inmediatamente
+        // 🚀 EJECUTAMOS NOTIFICACIÓN: Prepara la URL y activa el botón de WhatsApp inmediatamente
         this.enviarNotificacionWhatsApp(dataExpress);
       },
       error: (err) => {
         this.cargando = false;
-        this.toastr.error('Ocurrió un error al procesar la reserva.');
+        this.toastr.error('Ocurrió un error al procesar la reserva en la central.');
       }
     });
   }
+
+
+
 
   private enviarNotificacionWhatsApp(data: any) {
     const textoPlano =
