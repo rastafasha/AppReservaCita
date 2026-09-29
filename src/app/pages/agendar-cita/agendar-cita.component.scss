@@ -59,7 +59,7 @@ $input-bg: #f2f2f7; // Gris claro para campos de texto de Apple
   // Estructura de Inputs Estilo Apple
   .apple-input-wrapper {
     display: flex;
-    flex-column: column;
+    flex-direction: column;
     gap: 6px;
 
     .apple-label {
@@ -178,6 +178,68 @@ $input-bg: #f2f2f7; // Gris claro para campos de texto de Apple
     border-color: #0071e3;
     outline: none;
     box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+  }
+}
+
+// ==========================================================================
+// ⏰ EXTENSIÓN PARA LA REJILLA HORIZONTAL DE PÍLDORAS CLÍNICAS
+// ==========================================================================
+
+.apple-hours-pills-container {
+  display: flex;
+  flex-direction: row; // Fuerza la alineación horizontal
+  flex-wrap: wrap;     // Si no caben en una fila, saltan ordenadamente abajo
+  gap: 8px;            // Separación simétrica y elegante entre píldoras
+  width: 100%;
+  padding: 4px 0;
+}
+
+/* LA PÍLDORA INDIVIDUAL COMPACTADA */
+.apple-radio-hour-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;              // Altura balanceada tipo cápsula
+  padding: 0 14px;           // Espaciado interno horizontal optimizado
+  background: #f2f2f7;       // Hereda el gris claro de fondo de Apple ($input-bg)
+  border: 1px solid #e5e5ea;
+  border-radius: 50px;       // Redondeado perfecto estilo píldora
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .pill-time-text {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  // Icono del check interno de Apple
+  i {
+    color: #ffffff;
+    font-size: 0.78rem;
+  }
+
+  /* EFECTO INTERACTIVO AL PASAR EL MOUSE */
+  &:hover {
+    background: #e5e5ea;
+    border-color: #cbd5e1;
+  }
+
+  &:active {
+    transform: scale(0.96); // Efecto elástico al presionar
+  }
+
+  /* 🟣 ESTADO SELECCIONADO (Match con el Degradado Corporativo de Klyntic) */
+  &.selected-pill {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+    border-color: #7c3aed !important;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.18);
+    transform: translateY(-1px);
+
+    .pill-time-text {
+      color: #ffffff !important; // Texto blanco de alto contraste
+    }
   }
 }
 
