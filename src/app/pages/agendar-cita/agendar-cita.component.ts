@@ -165,6 +165,11 @@ export class AgendarCitaComponent implements OnInit, OnChanges {
   }
 
   filtroDoctor() {
+
+    if (!this.date_appointment && !this.hour) {
+      return;
+    }
+    
     const data = {
       date_appointment: this.date_appointment,
       hour: this.hour,
