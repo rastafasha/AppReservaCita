@@ -8,7 +8,7 @@
 
   <!-- Lado Izquierdo: Contenedor con la Imagen y el Badge Verde de Estado Activo -->
   <div class="position-relative flex-shrink-0">
-    <img [src]="clinica?.img | imagenPipe: 'staffs'" [alt]="clinica?.name" class="doctor-avatar shadow-sm">
+    <img [src]="clinica?.img | imagenPipe: 'staffs'" [alt]="clinicaSelected?.name" class="doctor-avatar shadow-sm">
     <span
       class="status-badge position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle"></span>
   </div>
@@ -17,7 +17,7 @@
   <div class="flex-grow-1">
 
     <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-      <h1 class="doctor-name fw-bold m-0">{{ clinica?.name }}</h1>
+      <h1 class="doctor-name fw-bold m-0">{{ clinicaSelected?.name }}</h1>
       <span
         class="badge bg-success-subtle text-success rounded-pill fw-semibold border border-success-subtle apple-mini-badge">
         <i class="fa-solid fa-circle-check"></i>

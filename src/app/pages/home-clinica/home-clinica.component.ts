@@ -67,7 +67,6 @@ export class HomeClinicaComponent implements OnInit, OnDestroy {
         switchMap((consultorio: any) => {
           this.consultorioSelected = consultorio;
 
-
           if (consultorio?.tipoClinica?.toLowerCase() === 'clinica') {
             return this.appointmentService.getSelectorEspecialistas().pipe(
               map((respSelector: any) => {
@@ -90,19 +89,28 @@ export class HomeClinicaComponent implements OnInit, OnDestroy {
         next: (resultado: any) => {
           if (resultado?.isEnterprise) {
             this.especialidadesEnterprise = resultado.results;
-            // 🔥 ASIGNAMOS EL ID DE LARAVEL: Rellenamos el hueco que Node.js dejó vacío
-            this.consultorioSelected.id = resultado.idRelacionalLaravel; 
 
-            // 🚀 PARCHADO EN CALIENTE: Consolidamos la data de Settingeneral sobre el objeto de la vista
+            // 🔥 ASIGNAMOS EL ID DE LARAVEL
+            this.consultorioSelected.id = resultado.idRelacionalLaravel;
+
+            // 🚀 PARCHADO EN CALIENTE CONSOLIDADO CON PROTECCIÓN
             if (this.consultorioSelected && resultado.metaSettings) {
-              this.consultorioSelected.name = resultado.metaSettings.name;
-              this.consultorioSelected.ciudad = resultado.metaSettings.address; // Mapea a tus interpolaciones existentes
+
+              // 🟢 SOLUCIÓN: Si Node ya nos dio un nombre válido (y no es el string genérico "Consultorio"), lo mantenemos.
+              // Solo usamos el de Laravel si el de Node venía vacío o nulo.
+              if (!this.consultorioSelected.name || this.consultorioSelected.name === 'Consultorio') {
+                this.consultorioSelected.name = resultado.metaSettings.name;
+              }
+
+              // El resto de los metadatos físicos de la sede sí los actualizamos con Laravel
+              this.consultorioSelected.ciudad = resultado.metaSettings.address;
               this.consultorioSelected.phone = resultado.metaSettings.phone;
               this.consultorioSelected.moneda = resultado.metaSettings.moneda;
             }
 
             this.isLoading = false;
             console.log(`✅ Datos de Settingeneral e Inyección consolidada exitosamente.`);
+            // console.log('Objeto Final Consolidado:', this.consultorioSelected); // 🟢 Ahora mostrará "clinica de la doctora"
             return;
           }
           this.isLoading = false;
@@ -223,8 +231,8 @@ export class HomeClinicaComponent implements OnInit, OnDestroy {
       { name: 'description', content: descripcionComercial },
       { property: 'og:title', content: tituloCompleto },
       { property: 'og:description', content: descripcionComercial },
-      { property: 'og:image', content:  'https://klyntic.com/assets/images/logoklyntic.png' },
-      
+      { property: 'og:image', content: 'https://klyntic.com/assets/images/logoklyntic.png' },
+
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: tituloCompleto },
       { name: 'twitter:description', content: descripcionComercial },

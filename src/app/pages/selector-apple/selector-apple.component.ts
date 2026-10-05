@@ -20,6 +20,7 @@ export class SelectorAppleComponent implements OnInit {
 
   especialidades: any[] = [];
   clinica: any;
+  clinicaSelected: any;
   especialidadSeleccionada: any = null;
   doctorSeleccionado: any = null;
   loading: boolean = true;
@@ -35,7 +36,8 @@ export class SelectorAppleComponent implements OnInit {
     // Consultamos la información del tenant guardada en la caché
     this.clinicaService.getClinicaBySlugCached(slug).subscribe((consultorio: any) => {
       
-      if (consultorio?.tipoClinica?.toLowerCase() !== 'clinica') {
+      this.clinicaSelected = consultorio;
+      if (consultorio.tipoClinica?.toLowerCase() !== 'clinica') {
         // 🩺 CASO B: Es 'klyntic-generic' (Consultorio Pro).
         // No necesita selector estilo Apple. Lo mandamos directo al Home tradicional de reservas.
         console.log(`🩺 [SelectorApple]: Detectado Consultorio Pro. Redirigiendo a /home.`);
